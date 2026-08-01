@@ -8,6 +8,8 @@
 %%
 %%  选项：
 %%    color=blue|red         配色与配套素材，默认 blue
+%%    brandcn=<文字>         封面右上单位中文名，默认 中国航空制造技术研究院
+%%    branden=<文字>         封面右上单位英文名，自动缩放至中文名同宽
 %%    security=<文字>        封面密级标识，默认 公开，置空则不显示
 %%    agenda=<文字>          章节页竖排标题，默认 汇\\报\\内\\容
 %%    closing=<文字>         结束页文字，默认 汇报完毕
@@ -43,6 +45,8 @@
 %% =====================================================================
 \providecommand{\avicthemepath}{}
 \newcommand{\avic@variant}{blue}
+\newcommand{\avic@brandcn}{中国航空制造技术研究院}
+\newcommand{\avic@branden}{AVIC MANUFACTURING TECHNOLOGY INSTITUTE}
 \newcommand{\avic@security}{公开}
 \newcommand{\avic@agenda}{汇\\报\\内\\容}
 \newcommand{\avic@closingtext}{汇报完毕}
@@ -51,6 +55,8 @@
 \newif\ifavic@cjkdate
 
 \DeclareOptionBeamer{color}{\renewcommand{\avic@variant}{#1}}
+\DeclareOptionBeamer{brandcn}{\renewcommand{\avic@brandcn}{#1}}
+\DeclareOptionBeamer{branden}{\renewcommand{\avic@branden}{#1}}
 \DeclareOptionBeamer{security}{\renewcommand{\avic@security}{#1}}
 \DeclareOptionBeamer{agenda}{\renewcommand{\avic@agenda}{#1}}
 \DeclareOptionBeamer{closing}{\renewcommand{\avic@closingtext}{#1}}
@@ -112,14 +118,14 @@
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
 %% =====================================================================
-%%  4. 素材 —— 文件名随配色变体展开，thm-avic-mti-full 为双色共用
-%%     \aviccoverbg / \avicwatermark / \avicframelogo / \avicbrandmark
+%%  4. 素材 —— 文件名随配色变体展开，白色徽标为双色共用
+%%     \aviccoverbg / \avicwatermark / \avicframelogo / \avicwhitelogo
 %%     为公开路径宏，正文可直接 \includegraphics 复用
 %% =====================================================================
 \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}
 \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}
 \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}
-\edef\avicbrandmark{\avicthemepath thm-avic-mti-full.png}
+\edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}
 
 %% =====================================================================
 %%  5. 字体 —— 西文走 fontspec，中文走 xeCJK，缺字体时逐级回退
@@ -169,22 +175,38 @@
 \newcommand*{\avic@bandht}{1.18cm}
 \newcommand*{\avic@logoht}{0.80cm}
 \newcommand*{\avic@coverlogoht}{6.6cm}
-\newcommand*{\avic@coverbrandwd}{5.0cm}
+\newcommand*{\avic@brandlogoht}{0.82cm}
+\newcommand*{\avic@brandcnpt}{10.5}
+\newcommand*{\avic@brandenpt}{5}
+\newcommand*{\avic@brandgap}{0.15cm}
 
 %% =====================================================================
 %%  8. 图元 —— 各页面复用的构件
 %% =====================================================================
 
-%% 封面/结束页背景：铺底图 + 左下水印 logo + 右上全称 logo
+%% 单位名称：中文名按 \avic@brandcnpt 排版，英文名缩放至与中文名同宽
+\newsavebox{\avic@brandbox}
+\newcommand{\avic@brandtext}{%
+  \sbox\avic@brandbox{%
+    \bfseries\fontsize{\avic@brandcnpt}{\avic@brandcnpt}\selectfont\avic@brandcn}%
+  \begin{tabular}{@{}c@{}}
+    \usebox\avic@brandbox \\[0.04cm]
+    \resizebox{\wd\avic@brandbox}{!}{%
+      \bfseries\fontsize{\avic@brandenpt}{\avic@brandenpt}\selectfont\avic@branden}%
+  \end{tabular}%
+}
+
+%% 封面/结束页背景：铺底图 + 左下水印徽标 + 右上白色徽标与单位名称
 \newcommand{\avic@coverscene}{%
   \node[anchor=center, inner sep=0pt] at (current page.center)
     {\includegraphics[width=\paperwidth, height=\paperheight]{\aviccoverbg}};
   \node[anchor=center, inner sep=0pt]
     at ([xshift=2.2cm, yshift=2.0cm]current page.south west)
     {\includegraphics[height=\avic@coverlogoht]{\avicwatermark}};
-  \node[anchor=north east, inner sep=0pt]
-    at ([xshift=-0.55cm, yshift=-0.45cm]current page.north east)
-    {\includegraphics[width=\avic@coverbrandwd]{\avicbrandmark}};%
+  \node[anchor=north east, inner sep=0pt, text=aviccovertext] (avicbrand)
+    at ([xshift=-0.55cm, yshift=-0.45cm]current page.north east) {\avic@brandtext};
+  \node[anchor=east, inner sep=0pt] at ([xshift=-\avic@brandgap]avicbrand.west)
+    {\includegraphics[height=\avic@brandlogoht]{\avicwhitelogo}};%
 }
 
 %% 内页右上角小 logo
