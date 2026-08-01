@@ -55,7 +55,7 @@ latexmk -xelatex demo.tex
 | 选项 | 默认值 | 说明 |
 |---|---|---|
 | `color` | `blue` | 配色与配套素材，可选 `blue`、`red` |
-| `header` | `gradient` | 内页标题带样式：`gradient` 深色渐变横幅 + 白色渐隐收边线、白色页底；`plain` 白色标题带 + 主题色通栏细线、浅灰页底 |
+| `header` | `gradient` | 内页标题带样式。`gradient` 深色渐变横幅 + 白色渐隐收边线、白色页底；`plain` 白色标题带 + 主题色通栏细线、浅灰页底 |
 | `brandcn` | 中国航空制造技术研究院 | 封面右上单位中文名 |
 | `branden` | AVIC MANUFACTURING TECHNOLOGY INSTITUTE | 单位英文名，自动缩放至与中文名同宽 |
 | `security` | 公开 | 封面左上密级标识，置空则不显示 |
