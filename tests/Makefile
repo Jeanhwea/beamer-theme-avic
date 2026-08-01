@@ -1,28 +1,26 @@
-LATEXMK   := latexmk -xelatex -halt-on-error -interaction=nonstopmode
-OUTDIR    := build
-BLUEPATH  := $(CURDIR)/../avicblue
-REDPATH   := $(CURDIR)/../avicred
+LATEXMK  := latexmk -xelatex -halt-on-error -interaction=nonstopmode
+BLUEPATH := $(CURDIR)/../avicblue
+REDPATH  := $(CURDIR)/../avicred
 
 .PHONY: all blue red open clean distclean
 
 all: blue red
 
-blue: $(OUTDIR)/demo-blue.pdf
+blue: demo-blue.pdf
 
-red: $(OUTDIR)/demo-red.pdf
+red: demo-red.pdf
 
-$(OUTDIR)/demo-blue.pdf: demo-blue.tex content.tex $(BLUEPATH)/beamerthemeAvicBlue.sty
-	TEXINPUTS="$(BLUEPATH):" $(LATEXMK) -outdir=$(OUTDIR) demo-blue.tex
+demo-blue.pdf: demo-blue.tex content.tex $(BLUEPATH)/beamerthemeAvicBlue.sty
+	TEXINPUTS="$(BLUEPATH):" $(LATEXMK) demo-blue.tex
 
-$(OUTDIR)/demo-red.pdf: demo-red.tex content.tex $(REDPATH)/beamerthemeAvicRed.sty
-	TEXINPUTS="$(REDPATH):" $(LATEXMK) -outdir=$(OUTDIR) demo-red.tex
+demo-red.pdf: demo-red.tex content.tex $(REDPATH)/beamerthemeAvicRed.sty
+	TEXINPUTS="$(REDPATH):" $(LATEXMK) demo-red.tex
 
 open: all
-	open $(OUTDIR)/demo-blue.pdf $(OUTDIR)/demo-red.pdf
+	open demo-blue.pdf demo-red.pdf
 
 clean:
-	TEXINPUTS="$(BLUEPATH):" latexmk -c -outdir=$(OUTDIR) demo-blue.tex
-	TEXINPUTS="$(REDPATH):" latexmk -c -outdir=$(OUTDIR) demo-red.tex
+	latexmk -c demo-blue.tex demo-red.tex
 
 distclean:
-	rm -rf $(OUTDIR)
+	latexmk -C demo-blue.tex demo-red.tex
