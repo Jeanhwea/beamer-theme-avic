@@ -2,16 +2,27 @@
 %%  beamerthemeAvicRed.sty —— AVIC 红色 beamer 主题宏包
 %%
 %%  用法：
-%%    1. Makefile 中设置 TEXINPUTS 指向本宏包目录
-%%    2. preamble 中 \usetheme{AvicRed}
-%%    3. 正文只需写内容，封面 / 目录 / 章节分隔 / 结束页均自动生成
+%%    1. TEXINPUTS 指向本宏包目录（素材与 .sty 同级）
+%%    2. \usetheme[<key=value>]{AvicRed}
+%%    3. 正文只写内容，封面 / 章节页 / 结束页自动生成
 %%
-%%  1.依赖宏包   2.配色      3.版式参数   4.字体与素材
-%%  5.beamer 基础  6.图元    7.封面       8.目录与章节分隔(自动)
-%%  9.内页标题带  10.页码   11.结束页(自动)
+%%  选项：
+%%    security=<文字>        封面密级标识，默认 公开，置空则不显示
+%%    agenda=<文字>          章节页竖排标题，默认 汇\\报\\内\\容
+%%    closing=<文字>         结束页文字，默认 汇报完毕
+%%    assets=<路径>          素材路径前缀，默认与 .sty 同目录
+%%    sectionpage=true|false 每章前自动插入章节页，默认 true
+%%    closingpage=true|false 文末自动插入结束页，默认 true
+%%    cjkdate=true|false     默认日期用中文格式，默认 true
+%%
+%%  本宏包只加载渲染自身所需的宏包；amsmath / booktabs / tabularx /
+%%  fontawesome5 等内容宏包由文档自行加载。
+%%
+%%  1.依赖  2.选项  3.配色  4.字体  5.beamer 基础  6.版式参数
+%%  7.图元  8.封面  9.章节页  10.内页标题带  11.页码  12.结束页
 %% =====================================================================
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeAvicRed}[2026/08/01 v1.2 AVIC red beamer theme]
+\ProvidesPackage{beamerthemeAvicRed}[2026/08/02 v2.0 AVIC red beamer theme]
 
 \mode<presentation>
 
@@ -22,19 +33,31 @@
 \RequirePackage{fontspec}
 \RequirePackage{xeCJK}
 \RequirePackage{tikz}
-\RequirePackage{environ}
-\RequirePackage{fontawesome5}
-\RequirePackage{amsmath}
-\RequirePackage{amssymb}
-\RequirePackage{booktabs}
-\RequirePackage{tabularx}
-\RequirePackage{colortbl}
-\RequirePackage[export]{adjustbox}
-\RequirePackage{marvosym}
-\usetikzlibrary{shapes.geometric, calc, matrix, backgrounds, fit}
+\usetikzlibrary{calc, shapes.geometric}
 
 %% =====================================================================
-%%  2. 配色 —— 主题色为本文件与 AvicBlue 的唯一差异
+%%  2. 选项
+%% =====================================================================
+\providecommand{\avicthemepath}{}
+\newcommand{\avic@security}{公开}
+\newcommand{\avic@agenda}{汇\\报\\内\\容}
+\newcommand{\avic@closingtext}{汇报完毕}
+\newif\ifavic@sectionpage
+\newif\ifavic@closingpage
+\newif\ifavic@cjkdate
+
+\DeclareOptionBeamer{security}{\renewcommand{\avic@security}{#1}}
+\DeclareOptionBeamer{agenda}{\renewcommand{\avic@agenda}{#1}}
+\DeclareOptionBeamer{closing}{\renewcommand{\avic@closingtext}{#1}}
+\DeclareOptionBeamer{assets}{\renewcommand{\avicthemepath}{#1}}
+\DeclareOptionBeamer{sectionpage}[true]{\csname avic@sectionpage#1\endcsname}
+\DeclareOptionBeamer{closingpage}[true]{\csname avic@closingpage#1\endcsname}
+\DeclareOptionBeamer{cjkdate}[true]{\csname avic@cjkdate#1\endcsname}
+\ExecuteOptionsBeamer{sectionpage=true, closingpage=true, cjkdate=true}
+\ProcessOptionsBeamer
+
+%% =====================================================================
+%%  3. 配色 —— 调色板为本文件与 AvicBlue 的唯一差异
 %% =====================================================================
 \definecolor{avicred}{RGB}{191,1,1}
 \definecolor{avicgray}{RGB}{242,242,242}
@@ -46,47 +69,63 @@
 \colorlet{themecolor}{avicred}
 \colorlet{avicaccent}{avicred}
 
-%% =====================================================================
-%%  3. 版式参数 —— \avic@*frac 为占页面宽度的比例，其余为绝对尺寸
-%% =====================================================================
-\newcommand*{\avic@sidebarfrac}{0.115}
-\newcommand*{\avic@arrowtipfrac}{0.305}
-\newcommand*{\avic@tocrulefrac}{0.93}
-\newcommand*{\avic@bandht}{1.18cm}
-\newcommand*{\avic@logoht}{0.80cm}
-\newcommand*{\avic@coverlogoht}{6.6cm}
-\newcommand*{\avic@coverbrandwd}{5.0cm}
+\colorlet{avicbandbg}{white}
+\colorlet{avicrule}{avicaccent}
+\colorlet{avicsidebarbg}{avicgray}
+\colorlet{avicbadgeon}{themecolor}
+\colorlet{avicbadgeoff}{avictocgray}
+\colorlet{avictocline}{avicconn}
+\colorlet{aviccovertext}{white}
 
-%% =====================================================================
-%%  4. 字体与素材 —— \avicthemepath 可在 preamble 中预先定义以覆盖
-%% =====================================================================
-\providecommand{\avicthemepath}{}
-
-\usefonttheme{professionalfonts}
-
-\setmainfont{Arial}
-\setsansfont{Arial}
-\setmonofont{Courier New}
-
-\setCJKmainfont{Microsoft YaHei}[AutoFakeSlant]
-\setCJKsansfont{Microsoft YaHei}[AutoFakeSlant]
-\setCJKmonofont{Microsoft YaHei}[AutoFakeSlant]
-
-%% =====================================================================
-%%  5. beamer 基础 —— 颜色与列表模板
-%% =====================================================================
 \setbeamercolor{structure}{fg=themecolor}
-\setbeamercolor{frametitle}{fg=themecolor}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{background canvas}{bg=avicgray}
+\setbeamercolor{titlelike}{fg=themecolor}
+\setbeamercolor{frametitle}{fg=themecolor}
+\setbeamercolor{alerted text}{fg=avicorange}
 \setbeamercolor{itemize item}{fg=themecolor}
 \setbeamercolor{itemize subitem}{fg=avicaccent}
 \setbeamercolor{enumerate item}{fg=themecolor}
 \setbeamercolor{description item}{fg=themecolor}
 \setbeamercolor{item projected}{bg=themecolor, fg=white}
 \setbeamercolor{subitem projected}{bg=avicaccent, fg=white}
+\setbeamercolor{block title}{bg=themecolor, fg=white}
+\setbeamercolor{block body}{bg=white, fg=black}
+\setbeamercolor{block title alerted}{bg=avicorange, fg=white}
+\setbeamercolor{block body alerted}{bg=white, fg=black}
+\setbeamercolor{block title example}{bg=avicconn, fg=white}
+\setbeamercolor{block body example}{bg=white, fg=black}
+\setbeamercolor{caption name}{fg=themecolor}
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
+%% =====================================================================
+%%  4. 字体 —— 西文走 fontspec，中文走 xeCJK，缺字体时逐级回退
+%% =====================================================================
+\usefonttheme{professionalfonts}
+
+\newcommand{\avic@latinfont}{Arial}
+\newcommand{\avic@monofont}{Courier New}
+\newcommand{\avic@cjkfont}{Microsoft YaHei}
+
+\IfFontExistsTF{\avic@latinfont}{}{\renewcommand{\avic@latinfont}{Helvetica}}
+\IfFontExistsTF{\avic@monofont}{}{\renewcommand{\avic@monofont}{Menlo}}
+\IfFontExistsTF{\avic@cjkfont}{}{%
+  \renewcommand{\avic@cjkfont}{PingFang SC}%
+  \IfFontExistsTF{\avic@cjkfont}{}{\renewcommand{\avic@cjkfont}{Heiti SC}}}
+
+\expandafter\setmainfont\expandafter{\avic@latinfont}
+\expandafter\setsansfont\expandafter{\avic@latinfont}
+\expandafter\setmonofont\expandafter{\avic@monofont}
+\expandafter\setCJKmainfont\expandafter{\avic@cjkfont}[AutoFakeSlant]
+\expandafter\setCJKsansfont\expandafter{\avic@cjkfont}[AutoFakeSlant]
+\expandafter\setCJKmonofont\expandafter{\avic@cjkfont}[AutoFakeSlant]
+
+\newcommand{\avictoday}{\the\year 年\the\month 月\the\day 日}
+\ifavic@cjkdate\date{\avictoday}\fi
+
+%% =====================================================================
+%%  5. beamer 基础 —— 列表与导航模板
+%% =====================================================================
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{itemize items}[circle]
 \setbeamertemplate{itemize subitem}[circle]
@@ -98,10 +137,19 @@
 }
 \setcounter{tocdepth}{1}
 
-\renewcommand{\today}{\the\year 年\the\month 月\the\day 日}
+%% =====================================================================
+%%  6. 版式参数 —— \avic@*frac 为占页面宽度的比例，其余为绝对尺寸
+%% =====================================================================
+\newcommand*{\avic@sidebarfrac}{0.115}
+\newcommand*{\avic@arrowtipfrac}{0.305}
+\newcommand*{\avic@tocrulefrac}{0.93}
+\newcommand*{\avic@bandht}{1.18cm}
+\newcommand*{\avic@logoht}{0.80cm}
+\newcommand*{\avic@coverlogoht}{6.6cm}
+\newcommand*{\avic@coverbrandwd}{5.0cm}
 
 %% =====================================================================
-%%  6. 图元 —— 各页面复用的构件
+%%  7. 图元 —— 各页面复用的构件
 %% =====================================================================
 
 %% 封面/结束页背景：铺底图 + 左下水印 logo + 右上全称 logo
@@ -121,10 +169,12 @@
   \includegraphics[height=\avic@logoht]{\avicthemepath thm-frame-logo-01.pdf}%
 }
 
-%% 密级标识（封面/结束页左上角）
+%% 密级标识（封面/结束页左上角），选项置空则不绘制
 \newcommand{\avic@secmark}{%
-  \node[anchor=north west, text=white, font=\large, inner sep=0pt]
-    at ([xshift=1.0cm, yshift=-0.6cm]current page.north west) {公开};%
+  \ifx\avic@security\@empty\else
+    \node[anchor=north west, text=aviccovertext, font=\large, inner sep=0pt]
+      at ([xshift=1.0cm, yshift=-0.6cm]current page.north west) {\avic@security};%
+  \fi
 }
 
 %% 目录徽标（平行四边形）
@@ -134,26 +184,28 @@
     minimum width=0.62cm, minimum height=0.46cm, inner sep=0pt, outer sep=0pt}}
 
 %% =====================================================================
-%%  7. 封面 —— 铺图背景 + 居中白色标题 / 作者 / 单位 / 日期
+%%  8. 封面 —— 铺图背景 + 居中白色标题 / 作者 / 单位 / 日期
 %% =====================================================================
 \setbeamertemplate{title page}{%
   \begin{tikzpicture}[remember picture, overlay]
     \avic@coverscene
     \avic@secmark
-    \node[anchor=center, text=white, align=center, font=\fontsize{30}{38}\bfseries\selectfont]
+    \node[anchor=center, text=aviccovertext, align=center,
+      font=\fontsize{30}{38}\bfseries\selectfont]
       at ([yshift=1.05cm]current page.center) {\inserttitle};
-    \node[anchor=center, text=white, align=center, font=\normalsize]
+    \node[anchor=center, text=aviccovertext, align=center, font=\normalsize]
       at ([yshift=-1.15cm]current page.center) {\insertauthor};
-    \node[anchor=center, text=white, align=center, font=\normalsize]
+    \node[anchor=center, text=aviccovertext, align=center, font=\normalsize]
       at ([yshift=-1.85cm]current page.center) {\insertinstitute};
-    \node[anchor=center, text=white, align=center, font=\normalsize]
+    \node[anchor=center, text=aviccovertext, align=center, font=\normalsize]
       at ([yshift=-2.55cm]current page.center) {\insertdate};
   \end{tikzpicture}%
 }
 
 %% =====================================================================
-%%  8. 目录与章节分隔 —— 每章前自动插入目录页
+%%  9. 章节页 —— section page 模板，每章前自动插入
 %% =====================================================================
+\providecommand*{\beamer@sectionmax}{1}
 \newcounter{avictoc}
 
 %% 单项（绝对定位，徽标落在 > 折线上）：#1 徽标色 #2 名称选项 #3 对齐线色
@@ -181,21 +233,21 @@
   \end{tikzpicture}%
 }
 \setbeamertemplate{section in toc}{%
-  \avic@tocitem{themecolor}{anchor=west, font=\large\bfseries, text=themecolor}{avicconn}}
+  \avic@tocitem{avicbadgeon}{anchor=west, font=\large\bfseries, text=themecolor}{avictocline}}
 \setbeamertemplate{section in toc shaded}{%
-  \avic@tocitem{avictocgray}{anchor=west, font=\large, text=black}{avicconn!70}}
+  \avic@tocitem{avicbadgeoff}{anchor=west, font=\large, text=black}{avictocline!70}}
 
 %% 装饰：浅灰侧边栏 + 灰色右指箭头(主题色描边) + 竖排标题 + 右上 logo
 \newcommand{\avicagendadecor}[1]{%
   \begin{tikzpicture}[remember picture, overlay]
     \fill[white] (current page.north west) rectangle (current page.south east);
-    \fill[avicgray] (current page.north west) rectangle
+    \fill[avicsidebarbg] (current page.north west) rectangle
       ([xshift=\avic@sidebarfrac\paperwidth]current page.south west);
-    \fill[avicgray]
+    \fill[avicsidebarbg]
       ([xshift=\avic@sidebarfrac\paperwidth]current page.north west) --
       ([xshift=\avic@arrowtipfrac\paperwidth, yshift=-0.50\paperheight]current page.north west) --
       ([xshift=\avic@sidebarfrac\paperwidth, yshift=-\paperheight]current page.north west) -- cycle;
-    \draw[avicaccent, line width=0.4pt]
+    \draw[avicrule, line width=0.4pt]
       ([xshift=\avic@sidebarfrac\paperwidth]current page.north west) --
       ([xshift=\avic@arrowtipfrac\paperwidth, yshift=-0.50\paperheight]current page.north west) --
       ([xshift=\avic@sidebarfrac\paperwidth, yshift=-\paperheight]current page.north west);
@@ -207,29 +259,26 @@
   \end{tikzpicture}%
 }
 
-\newcommand{\avic@agendatitle}{汇\\报\\内\\容}
-\newcommand{\avic@agendatoc}{%
+\setbeamertemplate{section page}{%
+  \avicagendadecor{\avic@agenda}%
   \setcounter{avictoc}{0}%
   \tableofcontents[currentsection, hideallsubsections]%
 }
 
-\AtBeginSection[]{%
-  \begin{frame}
-    \avicagendadecor{\avic@agendatitle}%
-    \avic@agendatoc%
-  \end{frame}%
-}
+\ifavic@sectionpage
+  \AtBeginSection[]{\frame{\sectionpage}}
+\fi
 
 %% =====================================================================
-%%  9. 内页标题带 —— 白色标题带 + 主题色加粗标题 + 全宽分隔线 + 右上 logo
+%%  10. 内页标题带 —— 白色标题带 + 主题色加粗标题 + 全宽分隔线 + 右上 logo
 %% =====================================================================
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
-    \fill[white] (current page.north west)
+    \fill[avicbandbg] (current page.north west)
       rectangle ([yshift=-\avic@bandht]current page.north east);
     \node[anchor=west, text=themecolor, font=\Large\bfseries, inner sep=0pt]
       at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};
-    \draw[avicaccent, line width=0.4pt]
+    \draw[avicrule, line width=0.4pt]
       ([yshift=-\avic@bandht]current page.north west) --
       ([yshift=-\avic@bandht]current page.north east);
     \node[anchor=east, inner sep=0pt]
@@ -239,40 +288,40 @@
 }
 
 %% =====================================================================
-%%  10. 页码 —— 右下角灰色（首页不显示；结束页清空模板）
-%%      注：结束帧由 \AtEndDocument 插入，其 shipout 时机晚于 beamer 写入
-%%      \beamer@documentpages，导致 \inserttotalframenumber 比实际少 1，
-%%      此处用 \numexpr+1 修正。
+%%  11. 页码 —— 右下角灰色，首页不显示；结束页在 \appendix 之后，
+%%      不计入 \inserttotalframenumber
 %% =====================================================================
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber=1\relax\else
     \begin{tikzpicture}[remember picture, overlay]
       \node[anchor=south east, text=avicfootgray, font=\scriptsize, inner sep=0pt]
         at ([xshift=-0.45cm, yshift=0.3cm]current page.south east)
-        {\insertframenumber\,/\,\the\numexpr\inserttotalframenumber+1\relax};
+        {\insertframenumber\,/\,\inserttotalframenumber};
     \end{tikzpicture}%
   \fi
 }
 
 %% =====================================================================
-%%  11. 结束页 —— 文档末尾自动插入；铺图背景 + 大号白字
+%%  12. 结束页 —— 文档末尾自动插入；铺图背景 + 大号白字
 %% =====================================================================
-\newcommand{\avicclosing}[1][汇报完毕]{%
+\newcommand{\avicclosing}[1][\avic@closingtext]{%
   \begin{tikzpicture}[remember picture, overlay]
     \avic@coverscene
-    \node[anchor=center, text=white, font=\fontsize{40}{48}\bfseries\selectfont, inner sep=0pt]
-      at (current page.center) {#1};
+    \node[anchor=center, text=aviccovertext, inner sep=0pt,
+      font=\fontsize{40}{48}\bfseries\selectfont] at (current page.center) {#1};
   \end{tikzpicture}%
 }
 
-%% pandoc 默认会传 ignorenonframetext 选项，导致 \AtEndDocument 插入的帧
-%% 在文档结束后无法正常输出。这里关闭该模式以支持自动结束帧。
+%% pandoc 默认传 ignorenonframetext，会让 \AtEndDocument 插入的帧无法输出
 \beamer@ignorenonframefalse
 
 %% footline 必须在 \frame 之前清空，帧 shipout 时模板已锁定
-\AtEndDocument{%
-  \setbeamertemplate{footline}{}%
-  \frame{\avicclosing}%
-}
+\ifavic@closingpage
+  \AtEndDocument{%
+    \appendix
+    \setbeamertemplate{footline}{}%
+    \frame{\avicclosing}%
+  }
+\fi
 
 \mode<all>
