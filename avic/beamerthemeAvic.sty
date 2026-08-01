@@ -218,12 +218,12 @@
 }
 \setcounter{tocdepth}{1}
 
-%% 7. 版式参数
+%% 7. 版式参数（frac 为占页宽比例，ratio 为相对徽标高度比例）
 \newcommand*{\avic@sidebarfrac}{0.115}
 \newcommand*{\avic@arrowtipfrac}{0.305}
 \newcommand*{\avic@tocrulefrac}{0.93}
 \newcommand*{\avic@bandht}{1.18cm}
-%% 收边线：粗细 / 下缘距带底 / 左端内缩 / 右端占页宽比例（右端不到页边，向右淡出）
+%% 收边线：粗细 / 距带底 / 左端内缩 / 右端占页宽比例
 \newcommand*{\avic@bandlinewd}{0.04cm}
 \newcommand*{\avic@bandlinegap}{0.11cm}
 \newcommand*{\avic@bandlineinset}{0.12cm}
@@ -239,7 +239,7 @@
 
 %% 8. 图元
 
-%% 单位名称：英文名缩放至与中文名同宽，行距与总高比例取自原 mti-full 图实测
+%% 单位名称：英文名缩放至与中文名同宽，整块高度对齐徽标
 \newsavebox{\avic@brandcnbox}
 \newsavebox{\avic@brandenbox}
 \newlength{\avic@brandlead}
@@ -280,7 +280,7 @@
   \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
 
-%% 标题带内的徽标：渐变带为深色底，故换白色版；白底带仍用主题色版
+%% 标题带徽标：深色横幅用白色版，白底带用主题色版
 \newcommand{\avic@bandlogo}{%
   \ifavic@gradientband
     \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
@@ -289,7 +289,7 @@
   \fi
 }
 
-%% 标题带底：渐变横幅拉伸至整个带宽，或纯白底
+%% 标题带底
 \newcommand{\avic@bandback}{%
   \ifavic@gradientband
     \node[anchor=north west, inner sep=0pt] at (current page.north west)
@@ -300,12 +300,8 @@
   \fi
 }
 
-%% 收边线 —— gradient：带内白线自左向右渐隐，左端稍内缩，右端止于徽标之前
-%%             plain：带底一条主题色细线，通栏
-%% 注意：此处用 shading 而非 pgf fading。fading 依赖软蒙版，xdvipdfmx 无法消费
-%% xelatex 写出的相应 special，会破坏 .xdv 导致转 PDF 失败；shading 则原生支持。
-%% 渐隐终点取横幅在 \avic@bandlinefrac 处的实测色（见 temp/probe-header-bg.py），
-%% 故线尾与横幅同色而"消失"，视觉上不触及右边缘。
+%% 收边线 —— gradient：白线向右渐隐至 avicbandend；plain：带底通栏细线
+%% 用 shading 而非 pgf fading：fading 的软蒙版 special 会让 xdvipdfmx 转 PDF 失败
 \newcommand{\avic@bandrule}{%
   \ifavic@gradientband
     \shade[left color=avicbandline, right color=avicbandend]
@@ -354,8 +350,7 @@
 \providecommand*{\beamer@sectionmax}{1}
 \newcounter{avictoc}
 
-%% 目录单项：#1 徽标色 #2 名称样式 #3 对齐线色
-%% 纵向按章节总数等距分布，横向跟随 V 形折线
+%% 目录单项（#1 徽标色 #2 名称样式 #3 对齐线色）：纵向等距分布，横向跟随 V 形折线
 \newcommand{\avic@tocitem}[3]{%
   \stepcounter{avictoc}%
   \pgfmathsetmacro{\avic@total}{max(\beamer@sectionmax, 1)}%
@@ -411,7 +406,7 @@
   \AtBeginSection[]{\frame{\sectionpage}}
 \fi
 
-%% 11. 内页标题带 —— 底、收边线、标题色、徽标均随 header 样式切换
+%% 11. 内页标题带（底、收边线、标题色、徽标均随 header 样式切换）
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
     \avic@bandback
@@ -424,7 +419,7 @@
   \rule{0pt}{\avic@bandht}%
 }
 
-%% 12. 页码 —— 首页不显示；结束页在 \appendix 之后，不计入总页数
+%% 12. 页码（首页不显示）
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber=1\relax\else
     \begin{tikzpicture}[remember picture, overlay]
