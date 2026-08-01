@@ -1,14 +1,2 @@
-*.aux
-*.fdb_latexmk
-*.fls
-*.log
-*.nav
-*.out
-*.pdf
-*.snm
-*.synctex.gz
-*.toc
-*.xdv
-
-!avicblue/thm-*.pdf
-!avicred/thm-*.pdf
+dist/
+.DS_Store
