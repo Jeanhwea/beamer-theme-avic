@@ -16,7 +16,7 @@
 \RequirePackage{fontspec}
 \RequirePackage{xeCJK}
 \RequirePackage{tikz}
-\usetikzlibrary{calc, shapes.geometric}
+\usetikzlibrary{calc, fadings, shapes.geometric}
 
 %% 2. 选项
 \providecommand{\avicthemepath}{}
@@ -134,12 +134,16 @@
 }
 \setcounter{tocdepth}{1}
 
-%% 7. 版式参数 —— frac 为占页面宽度的比例，ratio 为相对徽标高度的比例
+%% 7. 版式参数
 \newcommand*{\avic@sidebarfrac}{0.115}
 \newcommand*{\avic@arrowtipfrac}{0.305}
 \newcommand*{\avic@tocrulefrac}{0.93}
 \newcommand*{\avic@bandht}{1.18cm}
-\newcommand*{\avic@bandlinewd}{0.05cm}
+%% 收边线：粗细 / 下缘距带底 / 左端内缩 / 右端占页宽比例（右端不到页边，向右淡出）
+\newcommand*{\avic@bandlinewd}{0.04cm}
+\newcommand*{\avic@bandlinegap}{0.19cm}
+\newcommand*{\avic@bandlineinset}{0.12cm}
+\newcommand*{\avic@bandlinefrac}{0.84}
 \newcommand*{\avic@logoht}{0.80cm}
 \newcommand*{\avic@coverlogoht}{6.6cm}
 \newcommand*{\avic@brandlogoht}{0.72cm}
@@ -195,6 +199,20 @@
 %% 内页标题带为深色渐变，徽标改用白色版
 \newcommand{\avic@bandlogo}{%
   \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
+}
+
+%% 收边线自左向右淡出，故用渐隐蒙版而非纯色，可叠在任意底色上
+\tikzfading[name=avicbandfade,
+  left color=transparent!0, right color=transparent!100]
+
+%% 收边线：位于带内（下方仍留一条底色），左端稍内缩，右端止于徽标之前
+\newcommand{\avic@bandrule}{%
+  \fill[avicbandline, path fading=avicbandfade]
+    ([xshift=\avic@bandlineinset,
+      yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
+    rectangle
+    ([xshift=\avic@bandlinefrac\paperwidth,
+      yshift={-\avic@bandht+\avic@bandlinegap+\avic@bandlinewd}]current page.north west);%
 }
 
 \newcommand{\avic@secmark}{%
@@ -293,9 +311,7 @@
   \begin{tikzpicture}[remember picture, overlay]
     \node[anchor=north west, inner sep=0pt] at (current page.north west)
       {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
-    \fill[avicbandline]
-      ([yshift=-\avic@bandht]current page.north west) rectangle
-      ([yshift={-\avic@bandht+\avic@bandlinewd}]current page.north east);
+    \avic@bandrule
     \node[anchor=west, text=avicbandtext, font=\Large\bfseries, inner sep=0pt]
       at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};
     \node[anchor=east, inner sep=0pt]
