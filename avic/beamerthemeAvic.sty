@@ -21,6 +21,7 @@
 %% 2. 选项
 \providecommand{\avicthemepath}{}
 \newcommand{\avic@variant}{blue}
+\newcommand{\avic@header}{gradient}
 \newcommand{\avic@brandcn}{中国航空制造技术研究院}
 \newcommand{\avic@branden}{AVIC MANUFACTURING TECHNOLOGY INSTITUTE}
 \newcommand{\avic@security}{公开}
@@ -31,6 +32,7 @@
 \newif\ifavic@cjkdate
 
 \DeclareOptionBeamer{color}{\renewcommand{\avic@variant}{#1}}
+\DeclareOptionBeamer{header}{\renewcommand{\avic@header}{#1}}
 \DeclareOptionBeamer{brandcn}{\renewcommand{\avic@brandcn}{#1}}
 \DeclareOptionBeamer{branden}{\renewcommand{\avic@branden}{#1}}
 \DeclareOptionBeamer{security}{\renewcommand{\avic@security}{#1}}
@@ -40,7 +42,8 @@
 \DeclareOptionBeamer{sectionpage}[true]{\csname avic@sectionpage#1\endcsname}
 \DeclareOptionBeamer{closingpage}[true]{\csname avic@closingpage#1\endcsname}
 \DeclareOptionBeamer{cjkdate}[true]{\csname avic@cjkdate#1\endcsname}
-\ExecuteOptionsBeamer{color=blue, sectionpage=true, closingpage=true, cjkdate=true}
+\ExecuteOptionsBeamer{color=blue, header=gradient,
+  sectionpage=true, closingpage=true, cjkdate=true}
 \ProcessOptionsBeamer
 
 %% 3. 配色
@@ -61,10 +64,28 @@
     {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}}
   {\csname avic@palette@\avic@variant\endcsname}
 
+%% 标题带样式 —— plain：白底带 + 主题色细线；gradient：渐变横幅 + 渐隐收边线
+%% 两者的页面底色不同：plain 用浅灰衬出白色带，gradient 的横幅已足够分隔，故用纯白
+\newif\ifavic@gradientband
+\newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
+\newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
+
+\@ifundefined{avic@headerstyle@\avic@header}
+  {\PackageError{beamerthemeAvic}
+    {Unknown header style `\avic@header'}
+    {可用值为 plain 或 gradient。}}
+  {\csname avic@headerstyle@\avic@header\endcsname}
+
 \colorlet{avicaccent}{themecolor}
-\colorlet{avicbandtext}{white}
 \colorlet{avicbandline}{white}
 \colorlet{avicrule}{avicaccent}
+\ifavic@gradientband
+  \colorlet{avicbandtext}{white}
+  \colorlet{avicpagebg}{white}
+\else
+  \colorlet{avicbandtext}{themecolor}
+  \colorlet{avicpagebg}{avicgray}
+\fi
 \colorlet{avicsidebarbg}{avicgray}
 \colorlet{avicbadgeon}{themecolor}
 \colorlet{avicbadgeoff}{avictocgray}
@@ -73,7 +94,7 @@
 
 \setbeamercolor{structure}{fg=themecolor}
 \setbeamercolor{normal text}{fg=black}
-\setbeamercolor{background canvas}{bg=avicgray}
+\setbeamercolor{background canvas}{bg=avicpagebg}
 \setbeamercolor{titlelike}{fg=themecolor}
 \setbeamercolor{frametitle}{fg=avicbandtext}
 \setbeamercolor{alerted text}{fg=avicorange}
@@ -196,23 +217,45 @@
   \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
 
-%% 内页标题带为深色渐变，徽标改用白色版
+%% 标题带内的徽标：渐变带为深色底，故换白色版；白底带仍用主题色版
 \newcommand{\avic@bandlogo}{%
-  \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
+  \ifavic@gradientband
+    \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
+  \else
+    \includegraphics[height=\avic@logoht]{\avicframelogo}%
+  \fi
+}
+
+%% 标题带底：渐变横幅拉伸至整个带宽，或纯白底
+\newcommand{\avic@bandback}{%
+  \ifavic@gradientband
+    \node[anchor=north west, inner sep=0pt] at (current page.north west)
+      {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
+  \else
+    \fill[white] (current page.north west)
+      rectangle ([yshift=-\avic@bandht]current page.north east);
+  \fi
 }
 
 %% 收边线自左向右淡出，故用渐隐蒙版而非纯色，可叠在任意底色上
 \tikzfading[name=avicbandfade,
   left color=transparent!0, right color=transparent!100]
 
-%% 收边线：位于带内（下方仍留一条底色），左端稍内缩，右端止于徽标之前
+%% 收边线 —— gradient：带内渐隐白线，左端稍内缩，右端止于徽标之前
+%%             plain：带底一条主题色细线，通栏
 \newcommand{\avic@bandrule}{%
-  \fill[avicbandline, path fading=avicbandfade]
-    ([xshift=\avic@bandlineinset,
-      yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
-    rectangle
-    ([xshift=\avic@bandlinefrac\paperwidth,
-      yshift={-\avic@bandht+\avic@bandlinegap+\avic@bandlinewd}]current page.north west);%
+  \ifavic@gradientband
+    \fill[avicbandline, path fading=avicbandfade]
+      ([xshift=\avic@bandlineinset,
+        yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
+      rectangle
+      ([xshift=\avic@bandlinefrac\paperwidth,
+        yshift={-\avic@bandht+\avic@bandlinegap+\avic@bandlinewd}]current page.north west);%
+  \else
+    \draw[avicrule, line width=0.4pt]
+      ([yshift=-\avic@bandht]current page.north west) --
+      ([yshift=-\avic@bandht]current page.north east);%
+  \fi
 }
 
 \newcommand{\avic@secmark}{%
@@ -305,12 +348,10 @@
   \AtBeginSection[]{\frame{\sectionpage}}
 \fi
 
-%% 11. 内页标题带 —— 渐变横幅拉伸至整个带宽，标题与徽标均为白色
-%% 渐变横幅自身不含收边，带底的白线须由本模板单独绘制
+%% 11. 内页标题带 —— 底、收边线、标题色、徽标均随 header 样式切换
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
-    \node[anchor=north west, inner sep=0pt] at (current page.north west)
-      {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
+    \avic@bandback
     \avic@bandrule
     \node[anchor=west, text=avicbandtext, font=\Large\bfseries, inner sep=0pt]
       at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};

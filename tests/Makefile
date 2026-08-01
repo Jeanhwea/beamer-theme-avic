@@ -12,22 +12,26 @@ endif
 
 export TEXINPUTS := $(THEME)$(KPSESEP)
 
-.PHONY: all blue red open clean distclean
+# 四种组合：配色 blue/red × 标题带 plain/gradient
+DEMOS := blue-plain blue-gradient red-plain red-gradient
+TEXS  := $(patsubst %,demo-%.tex,$(DEMOS))
+PDFS  := $(patsubst %,$(OUTDIR)/demo-%.pdf,$(DEMOS))
 
-all: blue red
+.PHONY: all $(DEMOS) open clean distclean
 
-blue: $(OUTDIR)/demo-blue.pdf
+all: $(PDFS)
 
-red: $(OUTDIR)/demo-red.pdf
+# 便捷目标：make red-gradient 等
+$(DEMOS): %: $(OUTDIR)/demo-%.pdf
 
 $(OUTDIR)/demo-%.pdf: demo-%.tex content.tex $(THEME)/beamerthemeAvic.sty
 	$(LATEXMK) demo-$*.tex
 
 open: all
-	open $(OUTDIR)/demo-blue.pdf $(OUTDIR)/demo-red.pdf
+	open $(PDFS)
 
 clean:
-	$(LATEXMK) -c demo-blue.tex demo-red.tex
+	$(LATEXMK) -c $(TEXS)
 
 distclean:
 	rm -rf $(OUTDIR)
