@@ -175,25 +175,43 @@
 \newcommand*{\avic@bandht}{1.18cm}
 \newcommand*{\avic@logoht}{0.80cm}
 \newcommand*{\avic@coverlogoht}{6.6cm}
-\newcommand*{\avic@brandlogoht}{0.82cm}
+\newcommand*{\avic@brandlogoht}{0.72cm}
 \newcommand*{\avic@brandcnpt}{10.5}
 \newcommand*{\avic@brandenpt}{5}
-\newcommand*{\avic@brandgap}{0.15cm}
+\newcommand*{\avic@brandtextratio}{0.706}
+\newcommand*{\avic@brandleadratio}{0.31}
+\newcommand*{\avic@brandgapratio}{0.115}
 
 %% =====================================================================
 %%  8. 图元 —— 各页面复用的构件
 %% =====================================================================
 
-%% 单位名称：中文名按 \avic@brandcnpt 排版，英文名缩放至与中文名同宽
-\newsavebox{\avic@brandbox}
+%% 单位名称：英文名缩放至与中文名同宽，行距取中文名高度的
+%% \avic@brandleadratio 倍，两行整体缩放到徽标高度的 \avic@brandtextratio 倍
+%% 比例取自原 thm-avic-mti-full.png 的像素实测：徽标 445，中文 192，
+%% 行距 56，英文 70，文字总高 318
+\newsavebox{\avic@brandcnbox}
+\newsavebox{\avic@brandenbox}
+\newlength{\avic@brandlead}
+\newlength{\avic@brandtextht}
+\newlength{\avic@brandgapln}
+\setlength{\avic@brandgapln}{\avic@brandlogoht}
+\setlength{\avic@brandgapln}{\avic@brandgapratio\avic@brandgapln}
 \newcommand{\avic@brandtext}{%
-  \sbox\avic@brandbox{%
+  \sbox\avic@brandcnbox{%
     \bfseries\fontsize{\avic@brandcnpt}{\avic@brandcnpt}\selectfont\avic@brandcn}%
-  \begin{tabular}{@{}c@{}}
-    \usebox\avic@brandbox \\[0.04cm]
-    \resizebox{\wd\avic@brandbox}{!}{%
-      \bfseries\fontsize{\avic@brandenpt}{\avic@brandenpt}\selectfont\avic@branden}%
-  \end{tabular}%
+  \sbox\avic@brandenbox{%
+    \resizebox{\wd\avic@brandcnbox}{!}{%
+      \bfseries\fontsize{\avic@brandenpt}{\avic@brandenpt}\selectfont\avic@branden}}%
+  \dp\avic@brandenbox=\z@
+  \setlength{\avic@brandlead}{\avic@brandleadratio\ht\avic@brandcnbox}%
+  \setlength{\avic@brandtextht}{\avic@brandlogoht}%
+  \setlength{\avic@brandtextht}{\avic@brandtextratio\avic@brandtextht}%
+  \resizebox{!}{\avic@brandtextht}{%
+    \vbox{\offinterlineskip
+      \hbox{\usebox\avic@brandcnbox}%
+      \vskip\avic@brandlead
+      \hbox{\usebox\avic@brandenbox}}}%
 }
 
 %% 封面/结束页背景：铺底图 + 左下水印徽标 + 右上白色徽标与单位名称
@@ -205,7 +223,7 @@
     {\includegraphics[height=\avic@coverlogoht]{\avicwatermark}};
   \node[anchor=north east, inner sep=0pt, text=aviccovertext] (avicbrand)
     at ([xshift=-0.55cm, yshift=-0.45cm]current page.north east) {\avic@brandtext};
-  \node[anchor=east, inner sep=0pt] at ([xshift=-\avic@brandgap]avicbrand.west)
+  \node[anchor=east, inner sep=0pt] at ([xshift=-\avic@brandgapln]avicbrand.west)
     {\includegraphics[height=\avic@brandlogoht]{\avicwhitelogo}};%
 }
 
