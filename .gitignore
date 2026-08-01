@@ -2,3 +2,5 @@ dist/
 temp/
 .kiro/
 .DS_Store
+*.log
+*.log.gz
