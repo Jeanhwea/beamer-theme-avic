@@ -1,7 +1,8 @@
-OUTDIR   := ../dist
-LATEXMK  := latexmk -xelatex -halt-on-error -interaction=nonstopmode -outdir=$(OUTDIR)
-BLUEPATH := $(CURDIR)/../avicblue
-REDPATH  := $(CURDIR)/../avicred
+OUTDIR  := ../dist
+THEME   := $(CURDIR)/../avic
+LATEXMK := latexmk -xelatex -halt-on-error -interaction=nonstopmode -outdir=$(OUTDIR)
+
+export TEXINPUTS := $(THEME):
 
 .PHONY: all blue red open clean distclean
 
@@ -11,11 +12,8 @@ blue: $(OUTDIR)/demo-blue.pdf
 
 red: $(OUTDIR)/demo-red.pdf
 
-$(OUTDIR)/demo-blue.pdf: demo-blue.tex content.tex $(BLUEPATH)/beamerthemeAvicBlue.sty
-	TEXINPUTS="$(BLUEPATH):" $(LATEXMK) demo-blue.tex
-
-$(OUTDIR)/demo-red.pdf: demo-red.tex content.tex $(REDPATH)/beamerthemeAvicRed.sty
-	TEXINPUTS="$(REDPATH):" $(LATEXMK) demo-red.tex
+$(OUTDIR)/demo-%.pdf: demo-%.tex content.tex $(THEME)/beamerthemeAvic.sty
+	$(LATEXMK) demo-$*.tex
 
 open: all
 	open $(OUTDIR)/demo-blue.pdf $(OUTDIR)/demo-red.pdf

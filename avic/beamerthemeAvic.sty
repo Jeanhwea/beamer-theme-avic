@@ -1,12 +1,13 @@
 %% =====================================================================
-%%  beamerthemeAvicRed.sty —— AVIC 红色 beamer 主题宏包
+%%  beamerthemeAvic.sty —— AVIC beamer 主题宏包（蓝 / 红双配色）
 %%
 %%  用法：
 %%    1. TEXINPUTS 指向本宏包目录（素材与 .sty 同级）
-%%    2. \usetheme[<key=value>]{AvicRed}
+%%    2. \usetheme[color=blue]{Avic} 或 \usetheme[color=red]{Avic}
 %%    3. 正文只写内容，封面 / 章节页 / 结束页自动生成
 %%
 %%  选项：
+%%    color=blue|red         配色与配套素材，默认 blue
 %%    security=<文字>        封面密级标识，默认 公开，置空则不显示
 %%    agenda=<文字>          章节页竖排标题，默认 汇\\报\\内\\容
 %%    closing=<文字>         结束页文字，默认 汇报完毕
@@ -15,14 +16,16 @@
 %%    closingpage=true|false 文末自动插入结束页，默认 true
 %%    cjkdate=true|false     默认日期用中文格式，默认 true
 %%
+%%  新增配色只需增加 \avic@palette@<名称> 与对应的 -<名称> 素材。
+%%
 %%  本宏包只加载渲染自身所需的宏包；amsmath / booktabs / tabularx /
 %%  fontawesome5 等内容宏包由文档自行加载。
 %%
-%%  1.依赖  2.选项  3.配色  4.字体  5.beamer 基础  6.版式参数
-%%  7.图元  8.封面  9.章节页  10.内页标题带  11.页码  12.结束页
+%%  1.依赖  2.选项  3.配色  4.素材  5.字体  6.beamer 基础  7.版式参数
+%%  8.图元  9.封面  10.章节页  11.内页标题带  12.页码  13.结束页
 %% =====================================================================
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{beamerthemeAvicRed}[2026/08/02 v2.0 AVIC red beamer theme]
+\ProvidesPackage{beamerthemeAvic}[2026/08/02 v3.0 AVIC beamer theme]
 
 \mode<presentation>
 
@@ -39,6 +42,7 @@
 %%  2. 选项
 %% =====================================================================
 \providecommand{\avicthemepath}{}
+\newcommand{\avic@variant}{blue}
 \newcommand{\avic@security}{公开}
 \newcommand{\avic@agenda}{汇\\报\\内\\容}
 \newcommand{\avic@closingtext}{汇报完毕}
@@ -46,6 +50,7 @@
 \newif\ifavic@closingpage
 \newif\ifavic@cjkdate
 
+\DeclareOptionBeamer{color}{\renewcommand{\avic@variant}{#1}}
 \DeclareOptionBeamer{security}{\renewcommand{\avic@security}{#1}}
 \DeclareOptionBeamer{agenda}{\renewcommand{\avic@agenda}{#1}}
 \DeclareOptionBeamer{closing}{\renewcommand{\avic@closingtext}{#1}}
@@ -53,12 +58,13 @@
 \DeclareOptionBeamer{sectionpage}[true]{\csname avic@sectionpage#1\endcsname}
 \DeclareOptionBeamer{closingpage}[true]{\csname avic@closingpage#1\endcsname}
 \DeclareOptionBeamer{cjkdate}[true]{\csname avic@cjkdate#1\endcsname}
-\ExecuteOptionsBeamer{sectionpage=true, closingpage=true, cjkdate=true}
+\ExecuteOptionsBeamer{color=blue, sectionpage=true, closingpage=true, cjkdate=true}
 \ProcessOptionsBeamer
 
 %% =====================================================================
-%%  3. 配色 —— 调色板为本文件与 AvicBlue 的唯一差异
+%%  3. 配色
 %% =====================================================================
+\definecolor{avicblue}{RGB}{0,137,207}
 \definecolor{avicred}{RGB}{191,1,1}
 \definecolor{avicgray}{RGB}{242,242,242}
 \definecolor{avicfootgray}{RGB}{89,89,89}
@@ -66,9 +72,16 @@
 \definecolor{avicconn}{RGB}{166,166,166}
 \definecolor{avicorange}{RGB}{197,90,17}
 
-\colorlet{themecolor}{avicred}
-\colorlet{avicaccent}{avicred}
+\newcommand{\avic@palette@blue}{\colorlet{themecolor}{avicblue}}
+\newcommand{\avic@palette@red}{\colorlet{themecolor}{avicred}}
 
+\@ifundefined{avic@palette@\avic@variant}
+  {\PackageError{beamerthemeAvic}
+    {Unknown color variant `\avic@variant'}
+    {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}}
+  {\csname avic@palette@\avic@variant\endcsname}
+
+\colorlet{avicaccent}{themecolor}
 \colorlet{avicbandbg}{white}
 \colorlet{avicrule}{avicaccent}
 \colorlet{avicsidebarbg}{avicgray}
@@ -99,7 +112,17 @@
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
 %% =====================================================================
-%%  4. 字体 —— 西文走 fontspec，中文走 xeCJK，缺字体时逐级回退
+%%  4. 素材 —— 文件名随配色变体展开，thm-avic-mti-full 为双色共用
+%%     \aviccoverbg / \avicwatermark / \avicframelogo / \avicbrandmark
+%%     为公开路径宏，正文可直接 \includegraphics 复用
+%% =====================================================================
+\edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}
+\edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}
+\edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}
+\edef\avicbrandmark{\avicthemepath thm-avic-mti-full.png}
+
+%% =====================================================================
+%%  5. 字体 —— 西文走 fontspec，中文走 xeCJK，缺字体时逐级回退
 %% =====================================================================
 \usefonttheme{professionalfonts}
 
@@ -124,7 +147,7 @@
 \ifavic@cjkdate\date{\avictoday}\fi
 
 %% =====================================================================
-%%  5. beamer 基础 —— 列表与导航模板
+%%  6. beamer 基础 —— 列表与导航模板
 %% =====================================================================
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{itemize items}[circle]
@@ -138,7 +161,7 @@
 \setcounter{tocdepth}{1}
 
 %% =====================================================================
-%%  6. 版式参数 —— \avic@*frac 为占页面宽度的比例，其余为绝对尺寸
+%%  7. 版式参数 —— \avic@*frac 为占页面宽度的比例，其余为绝对尺寸
 %% =====================================================================
 \newcommand*{\avic@sidebarfrac}{0.115}
 \newcommand*{\avic@arrowtipfrac}{0.305}
@@ -149,27 +172,27 @@
 \newcommand*{\avic@coverbrandwd}{5.0cm}
 
 %% =====================================================================
-%%  7. 图元 —— 各页面复用的构件
+%%  8. 图元 —— 各页面复用的构件
 %% =====================================================================
 
 %% 封面/结束页背景：铺底图 + 左下水印 logo + 右上全称 logo
 \newcommand{\avic@coverscene}{%
   \node[anchor=center, inner sep=0pt] at (current page.center)
-    {\includegraphics[width=\paperwidth, height=\paperheight]{\avicthemepath thm-cover-bg.png}};
+    {\includegraphics[width=\paperwidth, height=\paperheight]{\aviccoverbg}};
   \node[anchor=center, inner sep=0pt]
     at ([xshift=2.2cm, yshift=2.0cm]current page.south west)
-    {\includegraphics[height=\avic@coverlogoht]{\avicthemepath thm-avic-logo.png}};
+    {\includegraphics[height=\avic@coverlogoht]{\avicwatermark}};
   \node[anchor=north east, inner sep=0pt]
     at ([xshift=-0.55cm, yshift=-0.45cm]current page.north east)
-    {\includegraphics[width=\avic@coverbrandwd]{\avicthemepath thm-avic-mti-full.png}};%
+    {\includegraphics[width=\avic@coverbrandwd]{\avicbrandmark}};%
 }
 
 %% 内页右上角小 logo
 \newcommand{\avic@brandlogo}{%
-  \includegraphics[height=\avic@logoht]{\avicthemepath thm-frame-logo-01.pdf}%
+  \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
 
-%% 密级标识（封面/结束页左上角），选项置空则不绘制
+%% 密级标识（封面左上角），选项置空则不绘制
 \newcommand{\avic@secmark}{%
   \ifx\avic@security\@empty\else
     \node[anchor=north west, text=aviccovertext, font=\large, inner sep=0pt]
@@ -184,7 +207,7 @@
     minimum width=0.62cm, minimum height=0.46cm, inner sep=0pt, outer sep=0pt}}
 
 %% =====================================================================
-%%  8. 封面 —— 铺图背景 + 居中白色标题 / 作者 / 单位 / 日期
+%%  9. 封面 —— 铺图背景 + 居中白色标题 / 作者 / 单位 / 日期
 %% =====================================================================
 \setbeamertemplate{title page}{%
   \begin{tikzpicture}[remember picture, overlay]
@@ -203,7 +226,7 @@
 }
 
 %% =====================================================================
-%%  9. 章节页 —— section page 模板，每章前自动插入
+%%  10. 章节页 —— section page 模板，每章前自动插入
 %% =====================================================================
 \providecommand*{\beamer@sectionmax}{1}
 \newcounter{avictoc}
@@ -270,7 +293,7 @@
 \fi
 
 %% =====================================================================
-%%  10. 内页标题带 —— 白色标题带 + 主题色加粗标题 + 全宽分隔线 + 右上 logo
+%%  11. 内页标题带 —— 白色标题带 + 主题色加粗标题 + 全宽分隔线 + 右上 logo
 %% =====================================================================
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
@@ -288,7 +311,7 @@
 }
 
 %% =====================================================================
-%%  11. 页码 —— 右下角灰色，首页不显示；结束页在 \appendix 之后，
+%%  12. 页码 —— 右下角灰色，首页不显示；结束页在 \appendix 之后，
 %%      不计入 \inserttotalframenumber
 %% =====================================================================
 \setbeamertemplate{footline}{%
@@ -302,7 +325,7 @@
 }
 
 %% =====================================================================
-%%  12. 结束页 —— 文档末尾自动插入；铺图背景 + 大号白字
+%%  13. 结束页 —— 文档末尾自动插入；铺图背景 + 大号白字
 %% =====================================================================
 \newcommand{\avicclosing}[1][\avic@closingtext]{%
   \begin{tikzpicture}[remember picture, overlay]
