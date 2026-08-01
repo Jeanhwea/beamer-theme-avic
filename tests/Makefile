@@ -2,7 +2,15 @@ OUTDIR  := ../dist
 THEME   := $(CURDIR)/../avic
 LATEXMK := latexmk -xelatex -halt-on-error -interaction=nonstopmode -outdir=$(OUTDIR)
 
-export TEXINPUTS := $(THEME):
+# kpathsea uses ';' as the path separator on Windows, ':' elsewhere.
+# The trailing separator is what tells kpathsea to also search the default paths.
+ifeq ($(OS),Windows_NT)
+KPSESEP := ;
+else
+KPSESEP := :
+endif
+
+export TEXINPUTS := $(THEME)$(KPSESEP)
 
 .PHONY: all blue red open clean distclean
 
