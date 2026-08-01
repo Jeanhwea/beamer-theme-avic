@@ -1,0 +1,174 @@
+\title{AVIC Beamer 主题测试文档}
+\author{测试工程师}
+\institute{中航工业 · 测试中心}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\section{文字与列表}
+
+\begin{frame}{无序列表与层级}
+  \begin{itemize}
+    \item 一级条目：主题色圆点
+      \begin{itemize}
+        \item 二级条目：强调色圆点
+          \begin{itemize}
+            \item 三级条目
+          \end{itemize}
+      \end{itemize}
+    \item 中英文混排 Mixed Chinese and English 12345
+    \item \textbf{加粗} \textit{斜体} \texttt{等宽 monospace} \alert{强调}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{有序列表与描述列表}
+  \begin{enumerate}
+    \item 圆形徽标编号
+      \begin{enumerate}
+        \item 二级编号
+        \item 二级编号
+      \end{enumerate}
+    \item 第二项
+  \end{enumerate}
+  \begin{description}
+    \item[需求] 描述项标题为主题色
+    \item[设计] 描述项正文为黑色
+  \end{description}
+\end{frame}
+
+\section{表格与图表}
+
+\begin{frame}{表格：booktabs + tabularx + colortbl}
+  \begin{table}
+    \centering
+    \begin{tabularx}{0.9\textwidth}{lXrr}
+      \toprule
+      \rowcolor{themecolor!15}
+      编号 & 项目名称 & 数量 & 占比 \\
+      \midrule
+      1 & 结构件加工与装配验证 & 1200 & 42.5\% \\
+      2 & 航电系统集成测试     & 860  & 30.4\% \\
+      3 & 地面保障设备         & 767  & 27.1\% \\
+      \midrule
+      \multicolumn{2}{l}{合计} & 2827 & 100\% \\
+      \bottomrule
+    \end{tabularx}
+  \end{table}
+\end{frame}
+
+\begin{frame}{TikZ 绘图}
+  \centering
+  \begin{tikzpicture}[node distance=2.2cm, every node/.style={font=\small}]
+    \node[draw=themecolor, thick, rounded corners, fill=white,
+      minimum width=2cm, minimum height=0.9cm] (a) {需求分析};
+    \node[draw=themecolor, thick, rounded corners, fill=white,
+      minimum width=2cm, minimum height=0.9cm, right of=a] (b) {方案设计};
+    \node[draw=themecolor, thick, rounded corners, fill=white,
+      minimum width=2cm, minimum height=0.9cm, right of=b] (c) {试制验证};
+    \node[draw=themecolor, thick, rounded corners, fill=white,
+      minimum width=2cm, minimum height=0.9cm, right of=c] (d) {批产交付};
+    \draw[->, themecolor, thick] (a) -- (b);
+    \draw[->, themecolor, thick] (b) -- (c);
+    \draw[->, themecolor, thick] (c) -- (d);
+  \end{tikzpicture}
+
+  \vspace{0.6cm}
+  \begin{tikzpicture}
+    \fill[themecolor] (0,0) rectangle (1.2,0.8);
+    \fill[avicgray] (1.4,0) rectangle (2.6,1.4);
+    \fill[avicorange] (2.8,0) rectangle (4.0,2.0);
+    \fill[avicconn] (4.2,0) rectangle (5.4,1.1);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{图片与 adjustbox}
+  \centering
+  \includegraphics[height=2.4cm]{theme/thm-avic-logo.png}
+  \hspace{1cm}
+  \includegraphics[height=1.2cm]{theme/thm-frame-logo-01.pdf}
+
+  \vspace{0.5cm}
+  \includegraphics[width=0.5\textwidth, frame]{theme/thm-avic-mti-full.png}
+\end{frame}
+
+\section{公式与符号}
+
+\begin{frame}{数学公式}
+  \begin{equation}
+    L = \frac{1}{2} \rho v^{2} S C_{L}
+  \end{equation}
+  \begin{align}
+    \nabla \cdot \mathbf{u} &= 0 \\
+    \frac{\partial \mathbf{u}}{\partial t}
+      + (\mathbf{u} \cdot \nabla)\mathbf{u}
+      &= -\frac{1}{\rho}\nabla p + \nu \nabla^{2} \mathbf{u}
+  \end{align}
+  \[
+    \sum_{i=1}^{n} \alpha_i \le \int_{0}^{\infty} e^{-x^{2}} \, dx
+      = \frac{\sqrt{\pi}}{2}, \qquad \forall\, \alpha_i \in \mathbb{R}
+  \]
+\end{frame}
+
+\begin{frame}{图标字体}
+  \begin{itemize}
+    \item \textcolor{themecolor}{\faPlane} \quad fontawesome5 飞机图标
+    \item \textcolor{themecolor}{\faCogs} \quad 齿轮组
+    \item \textcolor{themecolor}{\faChartLine} \quad 趋势图
+    \item \textcolor{themecolor}{\Lightning} \quad marvosym 闪电
+    \item \textcolor{themecolor}{\Telefon} \quad marvosym 电话
+  \end{itemize}
+\end{frame}
+
+\section{区块与栏目}
+
+\begin{frame}{Block 区块}
+  \begin{block}{普通区块}
+    默认 block 样式，标题使用 structure 颜色。
+  \end{block}
+  \begin{alertblock}{警告区块}
+    alertblock 用于提示风险项。
+  \end{alertblock}
+  \begin{exampleblock}{示例区块}
+    exampleblock 用于举例说明。
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}{双栏布局}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{左栏}
+      \begin{itemize}
+        \item 指标一
+        \item 指标二
+        \item 指标三
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{右栏}
+      \begin{itemize}
+        \item 结论一
+        \item 结论二
+        \item 结论三
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{长标题与页码}
+
+\begin{frame}{这是一个相当长的内页标题用于检验标题带的排版是否溢出}
+  内页标题带高度固定，右上角 logo 与标题在同一基线。
+
+  \vspace{0.4cm}
+  本页页码应显示在右下角，格式为 当前页 / 总页数，且总页数包含自动结束页。
+\end{frame}
+
+\begin{frame}{手动目录页}
+  本文档共 5 个章节，用于检验目录项在 \texttt{n>=5} 分支下的垂直跨度与折线对齐。
+\end{frame}
+
+\end{document}
