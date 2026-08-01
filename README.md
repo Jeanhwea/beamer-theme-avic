@@ -47,7 +47,7 @@ latexmk -xelatex demo.tex
 - 每个 `\section` 前自动插入章节页，目录中高亮当前章；
 - 文末自动插入结束页；
 - 日期默认写成 `2026年8月2日`，也可以自己 `\date{...}` 覆盖；
-- 结束页排在 `\appendix` 之后，不计入 `\inserttotalframenumber`，所以页码里的总数比 PDF 实际页数少 1；
+- 结束页排在 `\appendix` 之后，不计入 beamer 的 `\inserttotalframenumber`，页码模板在启用自动结束页时会把显示总数补 1，使页码里的总数与 PDF 实际页数一致；
 - 主题只加载渲染自身所需的宏包，`amsmath`、`booktabs` 等按需自己 `\usepackage`。
 
 ## 选项

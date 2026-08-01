@@ -21,8 +21,8 @@
 %%    \end{document}
 %%
 %%  每个 \section 前自动插入章节页（目录中高亮当前章），文末自动插入
-%%  结束页。结束页在 \appendix 之后，不计入 \inserttotalframenumber，
-%%  因此页码里的总数比 PDF 实际页数少 1。
+%%  结束页。结束页在 \appendix 之后，不计入 beamer 的 \inserttotalframenumber，
+%%  故页码模板在启用自动结束页时把显示总数补 1，使其与 PDF 实际页数一致。
 %%
 %%  选项 —— \usetheme[键=值, ...]{Avic}
 %%    color=blue|red    配色与配套素材，默认 blue
@@ -526,13 +526,25 @@
 
 %% =====================================================================
 %% 14. 页码
+%% ---------------------------------------------------------------------
+%% beamer 的 \inserttotalframenumber 由它自己的 \AtEndDocument 写入 .nav，
+%% 而自动结束页由本主题在更晚注册的 \AtEndDocument 里追加，此时总数已冻结，
+%% 故结束页那一帧不计入总数。closingpage=true 时把显示总数补 1，让页码里的
+%% 总数与 PDF 实际页数一致。手动 \avicclosing（closingpage=false）作为普通
+%% 帧已被正常计数，不补。
 %% =====================================================================
+\newcommand{\avic@displaytotal}{%
+  \ifavic@closingpage
+    \the\numexpr\inserttotalframenumber+1\relax
+  \else
+    \inserttotalframenumber
+  \fi}
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber=1\relax\else
     \begin{tikzpicture}[aviccanvas]
       \node[avicfit, anchor=south east, text=avicfootgray, font=\scriptsize]
         at ([xshift=-0.45cm, yshift=0.3cm]current page.south east)
-        {\insertframenumber\,/\,\inserttotalframenumber};
+        {\insertframenumber\,/\,\avic@displaytotal};
     \end{tikzpicture}%
   \fi
 }
