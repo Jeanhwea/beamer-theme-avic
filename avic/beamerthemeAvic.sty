@@ -1,10 +1,68 @@
 %% =====================================================================
 %%  beamerthemeAvic.sty —— AVIC beamer 主题（蓝 / 红双配色）
+%% ---------------------------------------------------------------------
+%%  引擎：必须用 XeLaTeX（依赖 fontspec / xeCJK）
+%%  字体：Microsoft YaHei / Arial / Courier New，缺失时回退
+%%        PingFang SC / Helvetica / Menlo
+%%  素材：本目录下 thm-*-<配色>.{png,pdf}，白色徽标双配色共用
 %%
-%%  \usetheme[color=blue|red]{Avic}，其余选项见下方 \DeclareOptionBeamer
-%%  TEXINPUTS 需指向本目录；封面 / 章节页 / 结束页自动生成
-%%  新增配色 = 加一个 \avic@palette@<名称> 与一套 -<名称> 素材
-%%  只加载渲染自身所需宏包，amsmath / booktabs 等由文档自行加载
+%%  安装：把本目录加入 TeX 搜索路径，或编译前指定
+%%        TEXINPUTS=/path/to/avic:      （Windows 用 ; 分隔）
+%%        末尾的分隔符不能省，否则 kpathsea 不再搜索默认路径
+%%        素材与 .sty 不同级时，用 assets 选项给出前缀
+%%
+%%  最简用法：
+%%    \documentclass[aspectratio=169]{beamer}
+%%    \usetheme[color=blue]{Avic}
+%%    \title{汇报标题}\author{汇报人}\institute{单位名称}
+%%    \begin{document}
+%%    \begin{frame}[plain]\titlepage\end{frame}
+%%    \section{第一章}
+%%    \begin{frame}{页面标题}正文内容\end{frame}
+%%    \end{document}
+%%
+%%  每个 \section 前自动插入章节页（目录中高亮当前章），文末自动插入
+%%  结束页。结束页在 \appendix 之后，不计入 \inserttotalframenumber，
+%%  因此页码里的总数比 PDF 实际页数少 1。
+%%
+%%  选项 —— \usetheme[键=值, ...]{Avic}
+%%    color=blue|red    配色与配套素材，默认 blue
+%%    header=gradient|plain   内页标题带样式，默认 gradient
+%%                      gradient 深色渐变横幅 + 白色渐隐收边线，白色页底
+%%                      plain    白色标题带 + 主题色通栏细线，浅灰页底
+%%    brandcn={...}     封面右上单位中文名，默认 中国航空制造技术研究院
+%%    branden={...}     单位英文名，自动缩放至与中文名同宽
+%%    security={...}    封面左上密级标识，默认 公开，置空则不显示
+%%    agenda={...}      章节页竖排标题，\\ 换行，默认 汇\\报\\内\\容
+%%    closing={...}     结束页文字，默认 汇报完毕
+%%    assets={...}      素材路径前缀，默认空（与 .sty 同级）
+%%    sectionpage=true|false  每章前自动插入章节页，默认 true
+%%    closingpage=true|false  文末自动插入结束页，默认 true
+%%    cjkdate=true|false      默认日期用 2026年8月2日 格式，默认 true
+%%    例：\usetheme[color=red, security={}, closing={谢谢观看},
+%%                 sectionpage=false]{Avic}
+%%
+%%  公开宏
+%%    \avicclosing[文字]         手动插入结束页，配合 closingpage=false
+%%    \avicagendadecor{竖排标题} 章节页装饰底板，可做自定义过渡页
+%%    \avictoday                 中文日期
+%%    \aviccoverbg \avicheaderbg \avicwatermark \avicframelogo \avicwhitelogo
+%%                               当前配色素材路径，正文可直接 \includegraphics
+%%    \avicthemepath             素材前缀，等价 assets，须在 \usetheme 前定义
+%%    themecolor                 当前配色名，可用于 \textcolor、TikZ、表格底色
+%%
+%%  新增配色：在 \usetheme 之前定义 \avic@palette@<名称>（需 \makeatletter），
+%%  并补一套 -<名称> 后缀素材，宏包主体无需改动；传入未定义的配色会报
+%%  Unknown color variant。调色板需给出 themecolor，用 gradient 样式时还需
+%%  avicbandend —— 横幅在收边线末端处的颜色，收边线渐隐至此才看不出断口。
+%%    \makeatletter
+%%    \newcommand{\avic@palette@green}{%
+%%      \colorlet{themecolor}{green!60!black}%
+%%      \colorlet{avicbandend}{green!25!black}}
+%%    \makeatother
+%%    \usetheme[color=green]{Avic}
+%%
+%%  只加载渲染自身所需宏包，amsmath / booktabs 等由文档自行加载。
 %% =====================================================================
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{beamerthemeAvic}[2026/08/02 v3.0 AVIC beamer theme]
@@ -55,7 +113,7 @@
 \definecolor{avicconn}{RGB}{166,166,166}
 \definecolor{avicorange}{RGB}{197,90,17}
 
-%% 渐变横幅在收边线右端处的实测色，供收边线渐隐至此而"消失"
+%% 收边线渐隐终点色：横幅在线尾处的取样色
 \definecolor{avicbluedeep}{RGB}{30,74,114}
 \definecolor{avicreddeep}{RGB}{123,0,0}
 
@@ -70,8 +128,7 @@
     {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}}
   {\csname avic@palette@\avic@variant\endcsname}
 
-%% 标题带样式 —— plain：白底带 + 主题色细线；gradient：渐变横幅 + 渐隐收边线
-%% 两者的页面底色不同：plain 用浅灰衬出白色带，gradient 的横幅已足够分隔，故用纯白
+%% 标题带样式 —— 页底色随之改变：plain 用浅灰衬出白色带，gradient 用纯白
 \newif\ifavic@gradientband
 \newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
 \newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
@@ -119,14 +176,14 @@
 \setbeamercolor{caption name}{fg=themecolor}
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
-%% 4. 素材 —— 五个路径宏为公开接口，正文可直接 \includegraphics 复用
+%% 4. 素材路径（公开接口）
 \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}
 \edef\avicheaderbg{\avicthemepath thm-header-bg-\avic@variant.png}
 \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}
 \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}
 \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}
 
-%% 5. 字体 —— 西文 fontspec，中文 xeCJK，缺字体时逐级回退
+%% 5. 字体（缺失时逐级回退）
 \usefonttheme{professionalfonts}
 
 \newcommand{\avic@latinfont}{Arial}
