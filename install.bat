@@ -15,9 +15,9 @@ rem    install.bat /force       Install, overwrite existing without prompt
 rem    install.bat /uninstall   Uninstall
 rem =====================================================================
 
-rem Source directory: avic\ one level up from this script
+rem Source directory: avic\ next to this script
 set "SCRIPT_DIR=%~dp0"
-for %%I in ("%SCRIPT_DIR%..") do set "ROOT_DIR=%%~fI"
+for %%I in ("%SCRIPT_DIR%.") do set "ROOT_DIR=%%~fI"
 set "SOURCE_DIR=%ROOT_DIR%\avic"
 set "PACKAGE_NAME=beamer-theme-avic"
 
