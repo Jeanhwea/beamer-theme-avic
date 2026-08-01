@@ -10,5 +10,5 @@
 *.toc
 *.xdv
 
-!avicblue/theme/*.pdf
-!avicred/theme/*.pdf
+!avicblue/thm-*.pdf
+!avicred/thm-*.pdf
