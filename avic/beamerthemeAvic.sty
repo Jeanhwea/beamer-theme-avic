@@ -62,7 +62,7 @@
   {\csname avic@palette@\avic@variant\endcsname}
 
 \colorlet{avicaccent}{themecolor}
-\colorlet{avicbandbg}{white}
+\colorlet{avicbandtext}{white}
 \colorlet{avicrule}{avicaccent}
 \colorlet{avicsidebarbg}{avicgray}
 \colorlet{avicbadgeon}{themecolor}
@@ -74,7 +74,7 @@
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{background canvas}{bg=avicgray}
 \setbeamercolor{titlelike}{fg=themecolor}
-\setbeamercolor{frametitle}{fg=themecolor}
+\setbeamercolor{frametitle}{fg=avicbandtext}
 \setbeamercolor{alerted text}{fg=avicorange}
 \setbeamercolor{itemize item}{fg=themecolor}
 \setbeamercolor{itemize subitem}{fg=avicaccent}
@@ -91,8 +91,9 @@
 \setbeamercolor{caption name}{fg=themecolor}
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
-%% 4. 素材 —— 四个路径宏为公开接口，正文可直接 \includegraphics 复用
+%% 4. 素材 —— 五个路径宏为公开接口，正文可直接 \includegraphics 复用
 \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}
+\edef\avicheaderbg{\avicthemepath thm-header-bg-\avic@variant.png}
 \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}
 \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}
 \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}
@@ -189,6 +190,11 @@
   \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
 
+%% 内页标题带为深色渐变，徽标改用白色版
+\newcommand{\avic@bandlogo}{%
+  \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
+}
+
 \newcommand{\avic@secmark}{%
   \ifx\avic@security\@empty\else
     \node[anchor=north west, text=aviccovertext, font=\large, inner sep=0pt]
@@ -279,18 +285,15 @@
   \AtBeginSection[]{\frame{\sectionpage}}
 \fi
 
-%% 11. 内页标题带
+%% 11. 内页标题带 —— 渐变横幅拉伸至整个带宽，标题与徽标均为白色
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
-    \fill[avicbandbg] (current page.north west)
-      rectangle ([yshift=-\avic@bandht]current page.north east);
-    \node[anchor=west, text=themecolor, font=\Large\bfseries, inner sep=0pt]
+    \node[anchor=north west, inner sep=0pt] at (current page.north west)
+      {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
+    \node[anchor=west, text=avicbandtext, font=\Large\bfseries, inner sep=0pt]
       at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};
-    \draw[avicrule, line width=0.4pt]
-      ([yshift=-\avic@bandht]current page.north west) --
-      ([yshift=-\avic@bandht]current page.north east);
     \node[anchor=east, inner sep=0pt]
-      at ([xshift=-0.60cm, yshift=-0.57cm]current page.north east) {\avic@brandlogo};
+      at ([xshift=-0.60cm, yshift=-0.57cm]current page.north east) {\avic@bandlogo};
   \end{tikzpicture}%
   \rule{0pt}{\avic@bandht}%
 }
