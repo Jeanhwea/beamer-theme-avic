@@ -113,7 +113,6 @@
 \definecolor{avicconn}{RGB}{166,166,166}
 \definecolor{avicorange}{RGB}{197,90,17}
 
-%% 收边线渐隐终点色：横幅在线尾处的取样色
 \definecolor{avicbluedeep}{RGB}{30,74,114}
 \definecolor{avicreddeep}{RGB}{123,0,0}
 
@@ -128,7 +127,6 @@
     {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}}
   {\csname avic@palette@\avic@variant\endcsname}
 
-%% 标题带样式 —— 页底色随之改变：plain 用浅灰衬出白色带，gradient 用纯白
 \newif\ifavic@gradientband
 \newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
 \newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
@@ -176,14 +174,14 @@
 \setbeamercolor{caption name}{fg=themecolor}
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
-%% 4. 素材路径（公开接口）
+%% 4. 素材路径
 \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}
 \edef\avicheaderbg{\avicthemepath thm-header-bg-\avic@variant.png}
 \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}
 \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}
 \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}
 
-%% 5. 字体（缺失时逐级回退）
+%% 5. 字体
 \usefonttheme{professionalfonts}
 
 \newcommand{\avic@latinfont}{Arial}
@@ -218,12 +216,11 @@
 }
 \setcounter{tocdepth}{1}
 
-%% 7. 版式参数（frac 为占页宽比例，ratio 为相对徽标高度比例）
+%% 7. 版式参数
 \newcommand*{\avic@sidebarfrac}{0.115}
 \newcommand*{\avic@arrowtipfrac}{0.305}
 \newcommand*{\avic@tocrulefrac}{0.93}
 \newcommand*{\avic@bandht}{1.18cm}
-%% 收边线：粗细 / 距带底 / 左端内缩 / 右端占页宽比例
 \newcommand*{\avic@bandlinewd}{0.04cm}
 \newcommand*{\avic@bandlinegap}{0.11cm}
 \newcommand*{\avic@bandlineinset}{0.12cm}
@@ -238,8 +235,6 @@
 \newcommand*{\avic@brandgapratio}{0.155}
 
 %% 8. 图元
-
-%% 单位名称：英文名缩放至与中文名同宽，整块高度对齐徽标
 \newsavebox{\avic@brandcnbox}
 \newsavebox{\avic@brandenbox}
 \newlength{\avic@brandlead}
@@ -280,7 +275,6 @@
   \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
 
-%% 标题带徽标：深色横幅用白色版，白底带用主题色版
 \newcommand{\avic@bandlogo}{%
   \ifavic@gradientband
     \includegraphics[height=\avic@logoht]{\avicwhitelogo}%
@@ -289,7 +283,6 @@
   \fi
 }
 
-%% 标题带底
 \newcommand{\avic@bandback}{%
   \ifavic@gradientband
     \node[anchor=north west, inner sep=0pt] at (current page.north west)
@@ -300,8 +293,6 @@
   \fi
 }
 
-%% 收边线 —— gradient：白线向右渐隐至 avicbandend；plain：带底通栏细线
-%% 用 shading 而非 pgf fading：fading 的软蒙版 special 会让 xdvipdfmx 转 PDF 失败
 \newcommand{\avic@bandrule}{%
   \ifavic@gradientband
     \shade[left color=avicbandline, right color=avicbandend]
@@ -350,7 +341,6 @@
 \providecommand*{\beamer@sectionmax}{1}
 \newcounter{avictoc}
 
-%% 目录单项（#1 徽标色 #2 名称样式 #3 对齐线色）：纵向等距分布，横向跟随 V 形折线
 \newcommand{\avic@tocitem}[3]{%
   \stepcounter{avictoc}%
   \pgfmathsetmacro{\avic@total}{max(\beamer@sectionmax, 1)}%
@@ -406,7 +396,7 @@
   \AtBeginSection[]{\frame{\sectionpage}}
 \fi
 
-%% 11. 内页标题带（底、收边线、标题色、徽标均随 header 样式切换）
+%% 11. 内页标题带
 \setbeamertemplate{frametitle}{%
   \begin{tikzpicture}[remember picture, overlay]
     \avic@bandback
@@ -419,7 +409,7 @@
   \rule{0pt}{\avic@bandht}%
 }
 
-%% 12. 页码（首页不显示）
+%% 12. 页码
 \setbeamertemplate{footline}{%
   \ifnum\insertframenumber=1\relax\else
     \begin{tikzpicture}[remember picture, overlay]
@@ -439,10 +429,7 @@
   \end{tikzpicture}%
 }
 
-%% pandoc 会传 ignorenonframetext，导致 \AtEndDocument 插入的帧不输出
 \beamer@ignorenonframefalse
-
-%% footline 必须在 \frame 之前清空，帧 shipout 时模板已锁定
 
 \ifavic@closingpage
   \AtEndDocument{%
