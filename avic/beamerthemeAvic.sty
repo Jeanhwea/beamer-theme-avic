@@ -16,7 +16,7 @@
 \RequirePackage{fontspec}
 \RequirePackage{xeCJK}
 \RequirePackage{tikz}
-\usetikzlibrary{calc, fadings, shapes.geometric}
+\usetikzlibrary{calc, shapes.geometric}
 
 %% 2. 选项
 \providecommand{\avicthemepath}{}
@@ -55,8 +55,14 @@
 \definecolor{avicconn}{RGB}{166,166,166}
 \definecolor{avicorange}{RGB}{197,90,17}
 
-\newcommand{\avic@palette@blue}{\colorlet{themecolor}{avicblue}}
-\newcommand{\avic@palette@red}{\colorlet{themecolor}{avicred}}
+%% 渐变横幅在收边线右端处的实测色，供收边线渐隐至此而"消失"
+\definecolor{avicbluedeep}{RGB}{30,74,114}
+\definecolor{avicreddeep}{RGB}{123,0,0}
+
+\newcommand{\avic@palette@blue}{%
+  \colorlet{themecolor}{avicblue}\colorlet{avicbandend}{avicbluedeep}}
+\newcommand{\avic@palette@red}{%
+  \colorlet{themecolor}{avicred}\colorlet{avicbandend}{avicreddeep}}
 
 \@ifundefined{avic@palette@\avic@variant}
   {\PackageError{beamerthemeAvic}
@@ -237,15 +243,15 @@
   \fi
 }
 
-%% 收边线自左向右淡出，故用渐隐蒙版而非纯色，可叠在任意底色上
-\tikzfading[name=avicbandfade,
-  left color=transparent!0, right color=transparent!100]
-
-%% 收边线 —— gradient：带内渐隐白线，左端稍内缩，右端止于徽标之前
+%% 收边线 —— gradient：带内白线自左向右渐隐，左端稍内缩，右端止于徽标之前
 %%             plain：带底一条主题色细线，通栏
+%% 注意：此处用 shading 而非 pgf fading。fading 依赖软蒙版，xdvipdfmx 无法消费
+%% xelatex 写出的相应 special，会破坏 .xdv 导致转 PDF 失败；shading 则原生支持。
+%% 渐隐终点取横幅在 \avic@bandlinefrac 处的实测色（见 temp/probe-header-bg.py），
+%% 故线尾与横幅同色而"消失"，视觉上不触及右边缘。
 \newcommand{\avic@bandrule}{%
   \ifavic@gradientband
-    \fill[avicbandline, path fading=avicbandfade]
+    \shade[left color=avicbandline, right color=avicbandend]
       ([xshift=\avic@bandlineinset,
         yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
       rectangle
