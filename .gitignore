@@ -1,4 +1,5 @@
 dist/
+out/
 temp/
 .kiro/
 .DS_Store

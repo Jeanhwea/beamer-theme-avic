@@ -1,4 +1,5 @@
-OUTDIR  := ../dist
+OUTDIR  := out
+DISTDIR := ../dist
 THEME   := $(CURDIR)/../avic
 LATEXMK := latexmk -xelatex -halt-on-error -interaction=nonstopmode -outdir=$(OUTDIR)
 
@@ -13,7 +14,7 @@ export TEXINPUTS := $(THEME)$(KPSESEP)
 
 ORG  := demo.org
 TEX  := $(OUTDIR)/demo.tex
-PDF  := $(OUTDIR)/demo.pdf
+PDF  := $(DISTDIR)/demo.pdf
 
 .PHONY: all pandoc clean distclean
 
@@ -25,15 +26,19 @@ pandoc: $(TEX)
 $(TEX): $(ORG) | $(OUTDIR)
 	pandoc $(ORG) -o $(TEX) --to beamer --standalone
 
-# 编译生成的 .tex
-$(PDF): $(TEX) $(THEME)/beamerthemeAvic.sty
+# 编译生成的 .tex，再将 PDF 复制到 dist
+$(PDF): $(TEX) $(THEME)/beamerthemeAvic.sty | $(DISTDIR)
 	$(LATEXMK) $(TEX)
+	cp $(OUTDIR)/demo.pdf $(PDF)
 
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
+
+$(DISTDIR):
+	mkdir -p $(DISTDIR)
 
 clean:
 	$(LATEXMK) -c $(TEX)
 
 distclean:
-	rm -rf $(OUTDIR)
+	rm -rf $(OUTDIR) $(PDF)
