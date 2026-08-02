@@ -17,9 +17,14 @@ DEMOS := blue-plain blue-gradient red-plain red-gradient
 TEXS  := $(patsubst %,demo-%.tex,$(DEMOS))
 PDFS  := $(patsubst %,$(OUTDIR)/demo-%.pdf,$(DEMOS))
 
-.PHONY: all $(DEMOS) open clean distclean
+# org-mode 示例
+ORG    := demo-org-example.org
+ORGTEX := $(OUTDIR)/demo-org-example.tex
+ORGPDF := $(OUTDIR)/demo-org-example.pdf
 
-all: $(PDFS)
+.PHONY: all $(DEMOS) org pandoc open clean distclean
+
+all: $(PDFS) $(ORGPDF)
 
 # 便捷目标：make red-gradient 等
 $(DEMOS): %: $(OUTDIR)/demo-%.pdf
@@ -27,11 +32,20 @@ $(DEMOS): %: $(OUTDIR)/demo-%.pdf
 $(OUTDIR)/demo-%.pdf: demo-%.tex content.tex $(THEME)/beamerthemeAvic.sty
 	$(LATEXMK) demo-$*.tex
 
+# org-mode: pandoc 转 beamer LaTeX
+pandoc: $(ORGTEX)
+
+$(ORGTEX): $(ORG)
+	pandoc $(ORG) -o $(ORGTEX) --to beamer --standalone
+
+$(ORGPDF): $(ORGTEX) $(THEME)/beamerthemeAvic.sty
+	$(LATEXMK) $(ORGTEX)
+
 open: all
-	open $(PDFS)
+	open $(PDFS) $(ORGPDF)
 
 clean:
-	$(LATEXMK) -c $(TEXS)
+	$(LATEXMK) -c $(TEXS) $(ORGTEX)
 
 distclean:
 	rm -rf $(OUTDIR)
