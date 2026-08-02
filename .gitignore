@@ -4,3 +4,6 @@ temp/
 .DS_Store
 *.log
 *.log.gz
+
+# pandoc 生成的 .tex 是构建产物
+tests-org-demo/demo.tex

@@ -1,0 +1,58 @@
+#+TITLE: Org-mode 生成 Beamer 示例
+#+AUTHOR: 中航工业 · 测试中心
+#+DATE: 2026-08-02
+#+LATEX_CLASS: beamer
+#+LATEX_CLASS_OPTIONS: [aspectratio=169]
+#+LATEX_HEADER: \usetheme[color=blue,header=plain]{Avic}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{booktabs}
+#+LATEX_HEADER: \usepackage{tabularx}
+#+LATEX_HEADER: \usepackage{colortbl}
+
+
+* 列表与文字
+
+** 无序列表
+
+- 一级条目
+  - 二级条目
+  - 二级条目
+- 中英文混排 Mixed Chinese and English
+- *加粗* /斜体/ =等宽= \alert{强调}
+
+** 有序列表
+
+1. 第一项
+2. 第二项
+   1. 子项 A
+   2. 子项 B
+
+* 表格与公式
+
+** 表格
+
+#+begin_export latex
+\centering
+\begin{tabularx}{0.9\textwidth}{lXrr}
+  \toprule
+  \rowcolor{themecolor!15}
+  编号 & 项目名称 & 数量 & 占比 \\
+  \midrule
+  1 & 结构件加工 & 1200 & 42.5\% \\
+  2 & 系统测试 &  860 & 30.4\% \\
+  \bottomrule
+\end{tabularx}
+#+end_export
+
+** 公式
+
+\begin{equation}
+  L = \frac{1}{2} \rho v^{2} S C_{L}
+\end{equation}
+
+* 区块
+
+** Block 示例
+1. 默认 block 样式。
+1. alertblock 用于提示风险。
+1. exampleblock 用于举例。
