@@ -1,108 +1,32 @@
-%% =====================================================================
-%%  beamerthemeAvic.sty —— AVIC beamer 主题（蓝 / 红双配色）
-%% ---------------------------------------------------------------------
-%%  引擎：必须用 XeLaTeX（依赖 fontspec / xeCJK）
-%%  字体：Microsoft YaHei / Arial / Courier New，缺失时按候选表逐个回退
-%%  素材：本目录下 thm-*-<配色>.{png,pdf}，白色徽标双配色共用
-%%
-%%  安装：把本目录加入 TeX 搜索路径，或编译前指定
-%%        TEXINPUTS=/path/to/avic:      （Windows 用 ; 分隔）
-%%        末尾的分隔符不能省，否则 kpathsea 不再搜索默认路径
-%%        素材与 .sty 不同级时，用 assets 选项给出前缀
-%%
-%%  最简用法：
-%%    \documentclass[aspectratio=169]{beamer}
-%%    \usetheme[color=blue]{Avic}
-%%    \title{汇报标题}\author{汇报人}\institute{单位名称}
-%%    \begin{document}
-%%    \begin{frame}[plain]\titlepage\end{frame}
-%%    \section{第一章}
-%%    \begin{frame}{页面标题}正文内容\end{frame}
-%%    \end{document}
-%%
-%%  每个 \section 前自动插入章节页（目录中高亮当前章），文末自动插入
-%%  结束页。结束页在 \appendix 之后，不计入 beamer 的 \inserttotalframenumber，
-%%  故页码模板在启用自动结束页时把显示总数补 1，使其与 PDF 实际页数一致。
-%%
-%%  选项 —— \usetheme[键=值, ...]{Avic}
-%%    color=blue|red    配色与配套素材，默认 blue
-%%    header=gradient|plain   内页标题带样式，默认 gradient
-%%                      gradient 深色渐变横幅 + 白色渐隐收边线，白色页底
-%%                      plain    白色标题带 + 主题色通栏细线，浅灰页底
-%%    brandcn={...}     封面右上单位中文名，默认 中国航空制造技术研究院
-%%    branden={...}     单位英文名，自动缩放至与中文名同宽
-%%    security={...}    封面左上密级标识，默认 公开，置空则不显示
-%%    agenda={...}      章节页竖排标题，\\ 换行，默认 汇\\报\\内\\容
-%%    closing={...}     结束页文字，默认 汇报完毕
-%%    assets={...}      素材路径前缀，默认空（与 .sty 同级）
-%%    sectionpage=true|false  每章前自动插入章节页，默认 true
-%%    closingpage=true|false  文末自动插入结束页，默认 true
-%%    cjkdate=true|false      默认日期用 2026年8月2日 格式，默认 true
-%%    例：\usetheme[color=red, security={}, closing={谢谢观看},
-%%                 sectionpage=false]{Avic}
-%%
-%%  公开宏
-%%    \avicset{键=值}            加载后再改选项。color / header / 各文本
-%%                               与 assets 立即生效；sectionpage /
-%%                               closingpage / cjkdate 只在加载时有效
-%%    \avicclosing[文字]         手动插入结束页，配合 closingpage=false
-%%    \avicagendadecor{竖排标题} 章节页装饰底板，可做自定义过渡页
-%%    \avictoday                 中文日期
-%%    \aviccoverbg \avicheaderbg \avicwatermark \avicframelogo \avicwhitelogo
-%%                               当前配色素材路径，正文可直接 \includegraphics
-%%    \avicthemepath             素材前缀，等价 assets，须在 \usetheme 前定义
-%%    themecolor                 当前配色名，可用于 \textcolor、TikZ、表格底色
-%%
-%%  新增配色：在 \usetheme 之前定义 \avic@palette@<名称>（需 \makeatletter），
-%%  并补一套 -<名称> 后缀素材，宏包主体无需改动；传入未定义的配色会报
-%%  Unknown color variant。调色板需给出 themecolor，用 gradient 样式时还需
-%%  avicbandend —— 横幅在收边线末端处的颜色，收边线渐隐至此才看不出断口。
-%%    \makeatletter
-%%    \newcommand{\avic@palette@green}{%
-%%      \colorlet{themecolor}{green!60!black}%
-%%      \colorlet{avicbandend}{green!25!black}}
-%%    \makeatother
-%%    \usetheme[color=green]{Avic}
-%%
-%%  同理，新增标题带样式只需定义 \avic@headerstyle@<名称>，在其中设置
-%%  \ifavic@gradientband 并按需覆盖颜色。
-%%
-%%  只加载渲染自身所需宏包，amsmath / booktabs 等由文档自行加载。
-%% =====================================================================
+%% beamerthemeAvic.sty — AVIC beamer 主题（蓝/红双配色）
+%% 引擎：XeLaTeX（fontspec / xeCJK）。字体缺失时按候选表回退。
+%% 选项：color / header / brandcn / branden / security / agenda /
+%%       closing / assets / sectionpage / closingpage / cjkdate
+%% 详见 README.md。只加载自身所需宏包，amsmath 等由文档自行加载。
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{beamerthemeAvic}[2026/08/02 v0.2 AVIC beamer theme]
 
 \mode<presentation>
 
-%% =====================================================================
 %% 1. 依赖
-%% =====================================================================
 \RequirePackage{graphicx}
 \RequirePackage{fontspec}
 \RequirePackage{xeCJK}
 \RequirePackage{tikz}
-%% shapes.geometric: 目录徽标的 trapezium 形状
-%% calc: 主题自身未用到，留给文档做坐标运算，如 ($(a)!0.5!(b)$)
+%% shapes.geometric: 目录徽标 trapezium; calc 留给文档用
 \usetikzlibrary{calc, shapes.geometric}
 
-%% keyval 族名。\DeclareOptionBeamer 实际就是 \define@key{\@currname}，
-%% 记下族名便可在加载后用 \setkeys 复用同一套键（见 \avicset）。
+%% keyval 族名，供 \avicset 复用
 \edef\avic@family{\@currname}
 
-%% =====================================================================
 %% 2. 内部工具
-%% =====================================================================
-%% 按名字查表并执行，查不到就报错。用于 color / header 这类
-%% “取值决定一个宏” 的选项，把两处重复的判错逻辑收成一处。
-%%   #1 宏名前缀  #2 取值  #3 选项在报错里的称呼  #4 帮助文本
+%% 按名字查表执行，查不到则报错
 \newcommand{\avic@dispatch}[4]{%
   \@ifundefined{avic@#1@#2}%
     {\PackageError{beamerthemeAvic}{Unknown #3 `#2'}{#4}}%
     {\csname avic@#1@#2\endcsname}}
 
-%% 布尔选项赋值。\newif 会同时定义 \avic@<名>true / \avic@<名>false，
-%% 借此顺带校验取值，写错时给出可读的报错而不是 Undefined control sequence。
-%%   #1 开关名（不含 avic@ 前缀）  #2 取值
+%% 布尔选项赋值，顺带校验取值
 \newcommand{\avic@setbool}[2]{%
   \@ifundefined{avic@#1#2}%
     {\PackageError{beamerthemeAvic}
@@ -110,9 +34,7 @@
       {布尔选项只接受 true 或 false。}}%
     {\csname avic@#1#2\endcsname}}
 
-%% 从候选表里挑第一款已安装的字体。
-%%   #1 存放字体名的宏  #2 候选表，逗号分隔，按优先级，逗号后不要加空格
-%% 全部缺失时退回第一个候选并告警，保证后续 \setmainfont 有名字可用。
+%% 从候选表挑第一款已安装的字体，全缺则退回第一个并告警
 \newif\ifavic@fontfound
 \def\avic@firstitem#1,#2\avic@stop{\def\avic@fontdefault{#1}}
 \newcommand*{\avic@pickfont}[2]{%
@@ -128,16 +50,13 @@
       {候选字体均未安装 (#2)，退回 #1}%
   \fi}
 
-%% 把宏里的字体名展开后交给 fontspec 的 \set*font
+%% 展开宏后交给 fontspec
 \newcommand*{\avic@setfont}[2]{\expandafter#1\expandafter{#2}}
 \newcommand*{\avic@setcjkfont}[1]{%
   \expandafter#1\expandafter{\avic@cjkfont}[AutoFakeSlant]}
 
-%% =====================================================================
 %% 3. 选项
-%% =====================================================================
-%% \avicthemepath 用 \providecommand：允许文档在 \usetheme 之前先定义，
-%% 故默认值里不含 assets，避免把用户的设定冲掉。
+%% \avicthemepath 用 \providecommand，允许文档在 \usetheme 前先定义
 \providecommand{\avicthemepath}{}
 \newcommand{\avic@variant}{blue}
 \newcommand{\avic@header}{gradient}
@@ -165,9 +84,7 @@
   sectionpage=true, closingpage=true, cjkdate=true}
 \ProcessOptionsBeamer
 
-%% =====================================================================
 %% 4. 固定色板与配色 / 标题带样式表
-%% =====================================================================
 \definecolor{avicblue}{RGB}{0,137,207}
 \definecolor{avicred}{RGB}{191,1,1}
 \definecolor{avicgray}{RGB}{242,242,242}
@@ -176,7 +93,7 @@
 \definecolor{avicconn}{RGB}{166,166,166}
 \definecolor{avicorange}{RGB}{197,90,17}
 
-%% 渐变横幅在收边线末端处的颜色，收边线渐隐至此才看不出断口
+%% 收边线末端的渐隐色
 \definecolor{avicbluedeep}{RGB}{30,74,114}
 \definecolor{avicreddeep}{RGB}{123,0,0}
 
@@ -189,18 +106,14 @@
 \newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
 \newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
 
-%% =====================================================================
 %% 5. 主题应用：派生颜色 + 素材路径
-%% ---------------------------------------------------------------------
-%% 集中成一个宏，加载时执行一次，\avicset 之后可再执行，
-%% 于是换配色 / 换标题带样式在文档中途也能生效。
-%% =====================================================================
+%% 集中成宏，\avicset 后可重执行，文档中途换配色也能生效
 \newcommand{\avic@applycolors}{%
   \avic@dispatch{palette}{\avic@variant}{color variant}%
     {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}%
   \avic@dispatch{headerstyle}{\avic@header}{header style}%
     {可用值为 plain 或 gradient。}%
-  %% 语义别名：主题色的各用途入口，便于单独覆盖某一处而不动其他
+  %% 语义别名，便于单独覆盖某一处
   \colorlet{avicaccent}{themecolor}%
   \colorlet{avicrule}{themecolor}%
   \colorlet{avicbandline}{white}%
@@ -223,8 +136,7 @@
   \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}%
   \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}%
   \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}%
-  %% 标题带上的徽标随样式定：深色横幅配白徽标，白色标题带配彩色徽标。
-  %% 在此定好文件名，绘制时就不必再判一次。
+  %% 标题带徽标：深色横幅配白徽标，白色标题带配彩色徽标
   \ifavic@gradientband
     \let\avic@bandlogofile\avicwhitelogo
   \else
@@ -237,11 +149,8 @@
 %% 加载后调整选项
 \newcommand{\avicset}[1]{\setkeys{\avic@family}{#1}\avic@applytheme}
 
-%% =====================================================================
 %% 6. beamer 颜色映射
-%% ---------------------------------------------------------------------
-%% 只记颜色名，beamer 在使用时才解析，因此 \avicset 换色后自动跟随。
-%% =====================================================================
+%% 只记颜色名，\avicset 换色后自动跟随
 \setbeamercolor{structure}{fg=themecolor}
 \setbeamercolor{normal text}{fg=black}
 \setbeamercolor{background canvas}{bg=avicpagebg}
@@ -263,9 +172,7 @@
 \setbeamercolor{caption name}{fg=themecolor}
 \setbeamercolor{page number in head/foot}{fg=avicfootgray}
 
-%% =====================================================================
 %% 7. 字体
-%% =====================================================================
 \usefonttheme{professionalfonts}
 
 \avic@pickfont{\avic@latinfont}{Arial,Helvetica,Liberation Sans,Nimbus Sans}
@@ -283,9 +190,7 @@
 \newcommand{\avictoday}{\number\year 年\number\month 月\number\day 日}
 \ifavic@cjkdate\date{\avictoday}\fi
 
-%% =====================================================================
 %% 8. beamer 基础模板
-%% =====================================================================
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{itemize items}[circle]
 \setbeamertemplate{itemize subitem}[circle]
@@ -297,12 +202,8 @@
 }
 \setcounter{tocdepth}{1}
 
-%% =====================================================================
 %% 9. 版式参数
-%% ---------------------------------------------------------------------
-%% frac 结尾的是页宽 / 页高的比例，直接跟 \paperwidth 相乘；
-%% 其余是长度字面量，可直接用作 TikZ 的 xshift / yshift。
-%% =====================================================================
+%% frac 后缀=页宽/高比例，其余为长度字面量
 \newcommand*{\avic@sidebarfrac}{0.115}    % 章节页左侧灰带宽
 \newcommand*{\avic@arrowtipfrac}{0.305}   % 灰带箭头尖端横向位置
 \newcommand*{\avic@tocrulefrac}{0.93}     % 目录折线右端
@@ -320,24 +221,17 @@
 \newcommand*{\avic@brandleadratio}{0.31}  % 中英行间距 / 中文行高
 \newcommand*{\avic@brandgapratio}{0.155}  % 徽标与文字间距 / 徽标高
 
-%% =====================================================================
 %% 10. 图元
-%% =====================================================================
 \tikzset{
-  %% 满版画布：所有元素都画在页面坐标系上，不占据版面
   aviccanvas/.style={remember picture, overlay},
-  %% 贴合文字的节点。故意不设 outer sep，保持与徽标等元素的既有对齐
   avicfit/.style={inner sep=0pt},
-  %% 封面 / 结束页正中的白字
   aviccover/.style={avicfit, anchor=center, text=aviccovertext},
   avicbadge/.style={
     trapezium, trapezium left angle=66, trapezium right angle=114,
     text=white, font=\footnotesize\bfseries,
     minimum width=0.62cm, minimum height=0.46cm, inner sep=0pt, outer sep=0pt}}
 
-%% ---- 封面右上：单位中英文名 -----------------------------------------
-%% 中文名按 \avic@brandcnpt 排版定出基准宽度，英文名横向拉伸到同宽，
-%% 两行叠好后整体缩放到 \avic@brandtextht，使其与徽标等高。
+%% 封面右上：单位中英文名，英文缩放至与中文同宽，整体与徽标等高
 \newsavebox{\avic@brandcnbox}
 \newsavebox{\avic@brandenbox}
 \newlength{\avic@brandlead}
@@ -361,7 +255,7 @@
       \hbox{\usebox\avic@brandenbox}}}%
 }
 
-%% ---- 封面 / 结束页共用的满版背景 ------------------------------------
+%% 封面 / 结束页共用的满版背景
 \newcommand{\avic@coverscene}{%
   \node[avicfit, anchor=center] at (current page.center)
     {\includegraphics[width=\paperwidth, height=\paperheight]{\aviccoverbg}};
@@ -374,7 +268,7 @@
     {\includegraphics[height=\avic@brandlogoht]{\avicwhitelogo}};%
 }
 
-%% 封面正中一行文字（align=center 让内容里的 \\ 可用）
+%% 封面正中文字，align=center 让 \\ 可用
 \newcommand{\avic@coverline}[3]{% #1 纵向偏移 #2 字体 #3 内容
   \node[aviccover, align=center, font=#2] at ([yshift=#1]current page.center) {#3};%
 }
@@ -387,7 +281,7 @@
   \fi
 }
 
-%% ---- 章节页 / 内页的徽标 --------------------------------------------
+%% 章节页 / 内页徽标
 \newcommand{\avic@brandlogo}{%
   \includegraphics[height=\avic@logoht]{\avicframelogo}%
 }
@@ -395,14 +289,11 @@
   \includegraphics[height=\avic@logoht]{\avic@bandlogofile}%
 }
 
-%% ---- 内页标题带底板 -------------------------------------------------
-%% 两种样式各自成宏：底色与收边线在同一处定义，绘制顺序也固定，
-%% 新增样式时照此再写一个即可。
+%% 内页标题带底板：两种样式各自成宏
 \newcommand{\avic@band@gradient}{%
   \node[avicfit, anchor=north west] at (current page.north west)
     {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
-  %% xdvipdfmx 不支持 pgf fading，故收边线用 shading 从白渐变到
-  %% 横幅在右端的自身色 avicbandend，视觉上等效于渐隐
+  %% xdvipdfmx 不支持 pgf fading，用 shading 渐隐收边线
   \shade[left color=avicbandline, right color=avicbandend]
     ([xshift=\avic@bandlineinset,
       yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
@@ -423,9 +314,7 @@
   \ifavic@gradientband\avic@band@gradient\else\avic@band@plain\fi
 }
 
-%% =====================================================================
 %% 11. 封面
-%% =====================================================================
 \setbeamertemplate{title page}{%
   \begin{tikzpicture}[aviccanvas]
     \avic@coverscene
@@ -437,16 +326,11 @@
   \end{tikzpicture}%
 }
 
-%% =====================================================================
 %% 12. 章节页
-%% =====================================================================
-%% \beamer@sectionmax 由 .nav 提供，首次编译时还不存在
 \providecommand*{\beamer@sectionmax}{1}
 \newcounter{avictoc}
 
-%% 目录项沿灰带箭头的斜边排布：先按章节总数算出纵向位置，
-%% 再由斜边方程反解横向位置，条目便始终贴着斜边。
-%%   #1 徽标底色  #2 章节名节点选项  #3 折线颜色
+%% 目录项沿灰带箭头斜边排布
 \newcommand{\avic@tocitem}[3]{%
   \stepcounter{avictoc}%
   \pgfmathsetmacro{\avic@toctotal}{max(\beamer@sectionmax, 1)}%
