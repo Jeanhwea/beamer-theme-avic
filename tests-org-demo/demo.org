@@ -3,7 +3,7 @@
 #+DATE: 2026-08-02
 #+LATEX_CLASS: beamer
 #+LATEX_CLASS_OPTIONS: [aspectratio=169]
-#+LATEX_HEADER: \usetheme[color=blue,header=plain]{Avic}
+#+LATEX_HEADER: \usetheme[color=blue,header=gradient]{Avic}
 #+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \usepackage{booktabs}
 #+LATEX_HEADER: \usepackage{tabularx}
