@@ -1,5 +1,5 @@
-OUTDIR  := out
 DISTDIR := ../dist
+OUTDIR  := $(DISTDIR)/out
 THEME   := $(CURDIR)/../avic
 LATEXMK := latexmk -xelatex -halt-on-error -interaction=nonstopmode -outdir=$(OUTDIR)
 
