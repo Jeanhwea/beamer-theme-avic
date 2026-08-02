@@ -1,0 +1,126 @@
+%% avic-templates.sty — beamer 模板（封面、章节页、标题带、页码、结束页）
+\ProvidesPackage{avic-templates}[2026/08/02 v0.2 AVIC beamer theme - templates]
+
+%% 封面
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[aviccanvas]
+    \avic@coverscene
+    \avic@securitymark
+    \avic@coverline{1.05cm}{\fontsize{30}{38}\bfseries\selectfont}{\inserttitle}
+    \avic@coverline{-1.15cm}{\normalsize}{\insertauthor}
+    \avic@coverline{-1.85cm}{\normalsize}{\insertinstitute}
+    \avic@coverline{-2.55cm}{\normalsize}{\insertdate}
+  \end{tikzpicture}%
+}
+
+%% 章节页
+\providecommand*{\beamer@sectionmax}{1}
+\newcounter{avictoc}
+
+\newcommand{\avic@tocitem}[3]{%
+  \stepcounter{avictoc}%
+  \pgfmathsetmacro{\avic@toctotal}{max(\beamer@sectionmax, 1)}%
+  %% 章节少时收紧纵向跨度
+  \pgfmathsetmacro{\avic@tocspan}{%
+    ifthenelse(\avic@toctotal<=3, 0.44, ifthenelse(\avic@toctotal==4, 0.50, 0.60))}%
+  \pgfmathsetmacro{\avic@tocstep}{\avic@tocspan / max(\avic@toctotal - 1, 1)}%
+  \pgfmathsetmacro{\avic@tocy}{%
+    0.5 + (\value{avictoc} - (\avic@toctotal + 1) / 2) * \avic@tocstep}%
+  \pgfmathsetmacro{\avic@tocx}{\avic@sidebarfrac
+    + (\avic@arrowtipfrac - \avic@sidebarfrac) * (1 - abs(2 * \avic@tocy - 1))}%
+  \begin{tikzpicture}[aviccanvas]
+    \node[avicbadge, fill=#1, anchor=center] (avictocnum)
+      at ([xshift=\avic@tocx\paperwidth,
+           yshift=-\avic@tocy\paperheight]current page.north west)
+      {\inserttocsectionnumber};
+    \node[#2] (avictocname) at ([xshift=0.28cm]avictocnum.east) {\inserttocsection};
+    \coordinate (avictocls) at ([yshift=-0.42cm]avictocname.west);
+    \coordinate (avictocle) at ([xshift=\avic@tocrulefrac\paperwidth]current page.north west);
+    \draw[#3, line width=0.3pt] (avictocls) -- (avictocls -| avictocle);
+  \end{tikzpicture}%
+}
+\setbeamertemplate{section in toc}{%
+  \avic@tocitem{avicbadgeon}{anchor=west, font=\large\bfseries, text=themecolor}{avictocline}}
+\setbeamertemplate{section in toc shaded}{%
+  \avic@tocitem{avicbadgeoff}{anchor=west, font=\large, text=black}{avictocline!70}}
+
+\newcommand{\avicagendadecor}[1]{%
+  \begin{tikzpicture}[aviccanvas]
+    \coordinate (avicagendatop) at
+      ([xshift=\avic@sidebarfrac\paperwidth]current page.north west);
+    \coordinate (avicagendatip) at
+      ([xshift=\avic@arrowtipfrac\paperwidth,
+        yshift=-0.50\paperheight]current page.north west);
+    \coordinate (avicagendabot) at
+      ([xshift=\avic@sidebarfrac\paperwidth, yshift=-\paperheight]current page.north west);
+    \fill[white] (current page.north west) rectangle (current page.south east);
+    \fill[avicsidebarbg] (current page.north west) rectangle (avicagendabot);
+    \fill[avicsidebarbg]
+      (avicagendatop) -- (avicagendatip) -- (avicagendabot) -- cycle;
+    \draw[avicrule, line width=0.4pt]
+      (avicagendatop) -- (avicagendatip) -- (avicagendabot);
+    \node[avicfit, anchor=center, text=themecolor, align=center,
+      font=\fontsize{32}{40}\bfseries\selectfont]
+      at ([xshift=0.085\paperwidth, yshift=-0.50\paperheight]current page.north west) {#1};
+    \node[avicfit, anchor=north east]
+      at ([xshift=-0.50cm, yshift=-0.40cm]current page.north east) {\avic@brandlogo};
+  \end{tikzpicture}%
+}
+
+\setbeamertemplate{section page}{%
+  \avicagendadecor{\avic@agenda}%
+  \setcounter{avictoc}{0}%
+  \tableofcontents[currentsection, hideallsubsections]%
+}
+
+\ifavic@sectionpage
+  \AtBeginSection[]{\frame{\sectionpage}}
+\fi
+
+%% 内页标题带
+\setbeamertemplate{frametitle}{%
+  \begin{tikzpicture}[aviccanvas]
+    \avic@bandback
+    \node[avicfit, anchor=west, text=avicbandtext, font=\Large\bfseries]
+      at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};
+    \node[avicfit, anchor=east]
+      at ([xshift=-0.60cm, yshift=-0.57cm]current page.north east) {\avic@bandlogo};
+  \end{tikzpicture}%
+  \rule{0pt}{\avic@bandht}%
+}
+
+%% 页码：自动结束页不计入 \inserttotalframenumber，closingpage=true 时补 1
+\newcommand{\avic@displaytotal}{%
+  \ifavic@closingpage
+    \the\numexpr\inserttotalframenumber+1\relax
+  \else
+    \inserttotalframenumber
+  \fi}
+\setbeamertemplate{footline}{%
+  \ifnum\insertframenumber=1\relax\else
+    \begin{tikzpicture}[aviccanvas]
+      \node[avicfit, anchor=south east, text=avicfootgray, font=\scriptsize]
+        at ([xshift=-0.45cm, yshift=0.3cm]current page.south east)
+        {\insertframenumber\,/\,\avic@displaytotal};
+    \end{tikzpicture}%
+  \fi
+}
+
+%% 结束页
+\newcommand{\avicclosing}[1][\avic@closingtext]{%
+  \begin{tikzpicture}[aviccanvas]
+    \avic@coverscene
+    \node[aviccover, font=\fontsize{40}{48}\bfseries\selectfont]
+      at (current page.center) {#1};
+  \end{tikzpicture}%
+}
+
+\ifavic@closingpage
+  %% ignorenonframetext 会丢掉 \AtEndDocument 里的 frame 外材料，强制保留
+  \beamer@ignorenonframefalse
+  \AtEndDocument{%
+    \appendix
+    \setbeamertemplate{footline}{}%
+    \frame{\avicclosing}%
+  }
+\fi

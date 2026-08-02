@@ -1,0 +1,84 @@
+%% avic-colors.sty — 色板、配色、beamer 颜色映射
+\ProvidesPackage{avic-colors}[2026/08/02 v0.2 AVIC beamer theme - colors]
+
+%% 固定色板
+\definecolor{avicblue}{RGB}{0,137,207}
+\definecolor{avicred}{RGB}{191,1,1}
+\definecolor{avicgray}{RGB}{242,242,242}
+\definecolor{avicfootgray}{RGB}{89,89,89}
+\definecolor{avictocgray}{RGB}{173,170,170}
+\definecolor{avicconn}{RGB}{166,166,166}
+\definecolor{avicorange}{RGB}{197,90,17}
+%% 收边线末端的渐隐色
+\definecolor{avicbluedeep}{RGB}{30,74,114}
+\definecolor{avicreddeep}{RGB}{123,0,0}
+
+\newcommand{\avic@palette@blue}{%
+  \colorlet{themecolor}{avicblue}\colorlet{avicbandend}{avicbluedeep}}
+\newcommand{\avic@palette@red}{%
+  \colorlet{themecolor}{avicred}\colorlet{avicbandend}{avicreddeep}}
+
+\newif\ifavic@gradientband
+\newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
+\newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
+
+%% 主题应用：派生颜色 + 素材路径，\avicset 后可重执行
+\newcommand{\avic@applycolors}{%
+  \avic@dispatch{palette}{\avic@variant}{color variant}%
+    {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}%
+  \avic@dispatch{headerstyle}{\avic@header}{header style}%
+    {可用值为 plain 或 gradient。}%
+  \colorlet{avicaccent}{themecolor}%
+  \colorlet{avicrule}{themecolor}%
+  \colorlet{avicbandline}{white}%
+  \colorlet{avicsidebarbg}{avicgray}%
+  \colorlet{avicbadgeon}{themecolor}%
+  \colorlet{avicbadgeoff}{avictocgray}%
+  \colorlet{avictocline}{avicconn}%
+  \colorlet{aviccovertext}{white}%
+  \ifavic@gradientband
+    \colorlet{avicbandtext}{white}%
+    \colorlet{avicpagebg}{white}%
+  \else
+    \colorlet{avicbandtext}{themecolor}%
+    \colorlet{avicpagebg}{avicgray}%
+  \fi}
+
+\newcommand{\avic@applyassets}{%
+  \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}%
+  \edef\avicheaderbg{\avicthemepath thm-header-bg-\avic@variant.png}%
+  \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}%
+  \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}%
+  \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}%
+  \ifavic@gradientband
+    \let\avic@bandlogofile\avicwhitelogo
+  \else
+    \let\avic@bandlogofile\avicframelogo
+  \fi}
+
+\newcommand{\avic@applytheme}{\avic@applycolors\avic@applyassets}
+\avic@applytheme
+
+\newcommand{\avicset}[1]{\setkeys{\avic@family}{#1}\avic@applytheme}
+
+%% beamer 颜色映射（只记颜色名，\avicset 换色后自动跟随）
+\setbeamercolor{structure}{fg=themecolor}
+\setbeamercolor{normal text}{fg=black}
+\setbeamercolor{background canvas}{bg=avicpagebg}
+\setbeamercolor{titlelike}{fg=themecolor}
+\setbeamercolor{frametitle}{fg=avicbandtext}
+\setbeamercolor{alerted text}{fg=avicorange}
+\setbeamercolor{itemize item}{fg=themecolor}
+\setbeamercolor{itemize subitem}{fg=avicaccent}
+\setbeamercolor{enumerate item}{fg=themecolor}
+\setbeamercolor{description item}{fg=themecolor}
+\setbeamercolor{item projected}{bg=themecolor, fg=white}
+\setbeamercolor{subitem projected}{bg=avicaccent, fg=white}
+\setbeamercolor{block title}{bg=themecolor, fg=white}
+\setbeamercolor{block body}{bg=white, fg=black}
+\setbeamercolor{block title alerted}{bg=avicorange, fg=white}
+\setbeamercolor{block body alerted}{bg=white, fg=black}
+\setbeamercolor{block title example}{bg=avicconn, fg=white}
+\setbeamercolor{block body example}{bg=white, fg=black}
+\setbeamercolor{caption name}{fg=themecolor}
+\setbeamercolor{page number in head/foot}{fg=avicfootgray}

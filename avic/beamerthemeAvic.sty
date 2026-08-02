@@ -5,20 +5,24 @@
 
 \mode<presentation>
 
+%% 依赖
 \RequirePackage{graphicx}
 \RequirePackage{fontspec}
 \RequirePackage{xeCJK}
 \RequirePackage{tikz}
 \usetikzlibrary{calc, shapes.geometric}
 
+%% keyval 族名，供 \avicset 复用
 \edef\avic@family{\@currname}
 
 %% 内部工具
+%% 按名字查表执行，查不到则报错
 \newcommand{\avic@dispatch}[4]{%
   \@ifundefined{avic@#1@#2}%
     {\PackageError{beamerthemeAvic}{Unknown #3 `#2'}{#4}}%
     {\csname avic@#1@#2\endcsname}}
 
+%% 布尔选项赋值，顺带校验取值
 \newcommand{\avic@setbool}[2]{%
   \@ifundefined{avic@#1#2}%
     {\PackageError{beamerthemeAvic}
@@ -74,88 +78,6 @@
   sectionpage=true, closingpage=true, cjkdate=true}
 \ProcessOptionsBeamer
 
-%% 色板
-\definecolor{avicblue}{RGB}{0,137,207}
-\definecolor{avicred}{RGB}{191,1,1}
-\definecolor{avicgray}{RGB}{242,242,242}
-\definecolor{avicfootgray}{RGB}{89,89,89}
-\definecolor{avictocgray}{RGB}{173,170,170}
-\definecolor{avicconn}{RGB}{166,166,166}
-\definecolor{avicorange}{RGB}{197,90,17}
-%% 收边线末端的渐隐色
-\definecolor{avicbluedeep}{RGB}{30,74,114}
-\definecolor{avicreddeep}{RGB}{123,0,0}
-
-\newcommand{\avic@palette@blue}{%
-  \colorlet{themecolor}{avicblue}\colorlet{avicbandend}{avicbluedeep}}
-\newcommand{\avic@palette@red}{%
-  \colorlet{themecolor}{avicred}\colorlet{avicbandend}{avicreddeep}}
-
-\newif\ifavic@gradientband
-\newcommand{\avic@headerstyle@plain}{\avic@gradientbandfalse}
-\newcommand{\avic@headerstyle@gradient}{\avic@gradientbandtrue}
-
-%% 主题应用：派生颜色 + 素材路径，\avicset 后可重执行
-\newcommand{\avic@applycolors}{%
-  \avic@dispatch{palette}{\avic@variant}{color variant}%
-    {可用值为 blue 或 red，或自行定义 \string\avic@palette@<名称>。}%
-  \avic@dispatch{headerstyle}{\avic@header}{header style}%
-    {可用值为 plain 或 gradient。}%
-  \colorlet{avicaccent}{themecolor}%
-  \colorlet{avicrule}{themecolor}%
-  \colorlet{avicbandline}{white}%
-  \colorlet{avicsidebarbg}{avicgray}%
-  \colorlet{avicbadgeon}{themecolor}%
-  \colorlet{avicbadgeoff}{avictocgray}%
-  \colorlet{avictocline}{avicconn}%
-  \colorlet{aviccovertext}{white}%
-  \ifavic@gradientband
-    \colorlet{avicbandtext}{white}%
-    \colorlet{avicpagebg}{white}%
-  \else
-    \colorlet{avicbandtext}{themecolor}%
-    \colorlet{avicpagebg}{avicgray}%
-  \fi}
-
-\newcommand{\avic@applyassets}{%
-  \edef\aviccoverbg{\avicthemepath thm-cover-bg-\avic@variant.png}%
-  \edef\avicheaderbg{\avicthemepath thm-header-bg-\avic@variant.png}%
-  \edef\avicwatermark{\avicthemepath thm-avic-logo-\avic@variant.png}%
-  \edef\avicframelogo{\avicthemepath thm-frame-logo-\avic@variant.pdf}%
-  \edef\avicwhitelogo{\avicthemepath thm-avic-logo-white.png}%
-  \ifavic@gradientband
-    \let\avic@bandlogofile\avicwhitelogo
-  \else
-    \let\avic@bandlogofile\avicframelogo
-  \fi}
-
-\newcommand{\avic@applytheme}{\avic@applycolors\avic@applyassets}
-\avic@applytheme
-
-\newcommand{\avicset}[1]{\setkeys{\avic@family}{#1}\avic@applytheme}
-
-%% beamer 颜色映射（只记颜色名，\avicset 换色后自动跟随）
-\setbeamercolor{structure}{fg=themecolor}
-\setbeamercolor{normal text}{fg=black}
-\setbeamercolor{background canvas}{bg=avicpagebg}
-\setbeamercolor{titlelike}{fg=themecolor}
-\setbeamercolor{frametitle}{fg=avicbandtext}
-\setbeamercolor{alerted text}{fg=avicorange}
-\setbeamercolor{itemize item}{fg=themecolor}
-\setbeamercolor{itemize subitem}{fg=avicaccent}
-\setbeamercolor{enumerate item}{fg=themecolor}
-\setbeamercolor{description item}{fg=themecolor}
-\setbeamercolor{item projected}{bg=themecolor, fg=white}
-\setbeamercolor{subitem projected}{bg=avicaccent, fg=white}
-\setbeamercolor{block title}{bg=themecolor, fg=white}
-\setbeamercolor{block body}{bg=white, fg=black}
-\setbeamercolor{block title alerted}{bg=avicorange, fg=white}
-\setbeamercolor{block body alerted}{bg=white, fg=black}
-\setbeamercolor{block title example}{bg=avicconn, fg=white}
-\setbeamercolor{block body example}{bg=white, fg=black}
-\setbeamercolor{caption name}{fg=themecolor}
-\setbeamercolor{page number in head/foot}{fg=avicfootgray}
-
 %% 字体
 \usefonttheme{professionalfonts}
 
@@ -186,236 +108,9 @@
 }
 \setcounter{tocdepth}{1}
 
-%% 版式参数
-\newcommand*{\avic@sidebarfrac}{0.115}
-\newcommand*{\avic@arrowtipfrac}{0.305}
-\newcommand*{\avic@tocrulefrac}{0.93}
-\newcommand*{\avic@bandht}{1.18cm}
-\newcommand*{\avic@bandlinewd}{0.04cm}
-\newcommand*{\avic@bandlinegap}{0.11cm}
-\newcommand*{\avic@bandlineinset}{0.12cm}
-\newcommand*{\avic@bandlinefrac}{0.84}
-\newcommand*{\avic@logoht}{0.80cm}
-\newcommand*{\avic@coverlogoht}{6.6cm}
-\newcommand*{\avic@brandlogoht}{0.72cm}
-\newcommand*{\avic@brandcnpt}{10.5}
-\newcommand*{\avic@brandenpt}{5}
-\newcommand*{\avic@brandtextratio}{0.82}
-\newcommand*{\avic@brandleadratio}{0.31}
-\newcommand*{\avic@brandgapratio}{0.155}
-
-%% 图元
-\tikzset{
-  aviccanvas/.style={remember picture, overlay},
-  avicfit/.style={inner sep=0pt},
-  aviccover/.style={avicfit, anchor=center, text=aviccovertext},
-  avicbadge/.style={
-    trapezium, trapezium left angle=66, trapezium right angle=114,
-    text=white, font=\footnotesize\bfseries,
-    minimum width=0.62cm, minimum height=0.46cm, inner sep=0pt, outer sep=0pt}}
-
-%% 封面右上：中英文名，英文缩放至与中文同宽
-\newsavebox{\avic@brandcnbox}
-\newsavebox{\avic@brandenbox}
-\newlength{\avic@brandlead}
-\newlength{\avic@brandtextht}
-\newlength{\avic@brandgap}
-\setlength{\avic@brandtextht}{\avic@brandtextratio\dimexpr\avic@brandlogoht\relax}
-\setlength{\avic@brandgap}{\avic@brandgapratio\dimexpr\avic@brandlogoht\relax}
-
-\newcommand{\avic@brandtext}{%
-  \sbox\avic@brandcnbox{%
-    \bfseries\fontsize{\avic@brandcnpt}{\avic@brandcnpt}\selectfont\avic@brandcn}%
-  \sbox\avic@brandenbox{%
-    \resizebox{\wd\avic@brandcnbox}{!}{%
-      \bfseries\fontsize{\avic@brandenpt}{\avic@brandenpt}\selectfont\avic@branden}}%
-  \dp\avic@brandenbox=\z@
-  \setlength{\avic@brandlead}{\avic@brandleadratio\ht\avic@brandcnbox}%
-  \resizebox{!}{\avic@brandtextht}{%
-    \vbox{\offinterlineskip
-      \hbox{\usebox\avic@brandcnbox}%
-      \vskip\avic@brandlead
-      \hbox{\usebox\avic@brandenbox}}}%
-}
-
-%% 封面 / 结束页共用背景
-\newcommand{\avic@coverscene}{%
-  \node[avicfit, anchor=center] at (current page.center)
-    {\includegraphics[width=\paperwidth, height=\paperheight]{\aviccoverbg}};
-  \node[avicfit, anchor=center]
-    at ([xshift=2.2cm, yshift=2.0cm]current page.south west)
-    {\includegraphics[height=\avic@coverlogoht]{\avicwatermark}};
-  \node[avicfit, anchor=north east, text=aviccovertext] (avicbrand)
-    at ([xshift=-0.55cm, yshift=-0.45cm]current page.north east) {\avic@brandtext};
-  \node[avicfit, anchor=east] at ([xshift=-\avic@brandgap]avicbrand.west)
-    {\includegraphics[height=\avic@brandlogoht]{\avicwhitelogo}};%
-}
-
-\newcommand{\avic@coverline}[3]{%
-  \node[aviccover, align=center, font=#2] at ([yshift=#1]current page.center) {#3};%
-}
-
-\newcommand{\avic@securitymark}{%
-  \ifx\avic@security\@empty\else
-    \node[avicfit, anchor=north west, text=aviccovertext, font=\large]
-      at ([xshift=1.0cm, yshift=-0.5cm]current page.north west) {\avic@security};%
-  \fi
-}
-
-\newcommand{\avic@brandlogo}{%
-  \includegraphics[height=\avic@logoht]{\avicframelogo}%
-}
-\newcommand{\avic@bandlogo}{%
-  \includegraphics[height=\avic@logoht]{\avic@bandlogofile}%
-}
-
-%% 标题带底板
-\newcommand{\avic@band@gradient}{%
-  \node[avicfit, anchor=north west] at (current page.north west)
-    {\includegraphics[width=\paperwidth, height=\avic@bandht]{\avicheaderbg}};
-  %% xdvipdfmx 不支持 pgf fading，用 shading 渐隐收边线
-  \shade[left color=avicbandline, right color=avicbandend]
-    ([xshift=\avic@bandlineinset,
-      yshift={-\avic@bandht+\avic@bandlinegap}]current page.north west)
-    rectangle
-    ([xshift=\avic@bandlinefrac\paperwidth,
-      yshift={-\avic@bandht+\avic@bandlinegap+\avic@bandlinewd}]current page.north west);%
-}
-
-\newcommand{\avic@band@plain}{%
-  \fill[white] (current page.north west)
-    rectangle ([yshift=-\avic@bandht]current page.north east);
-  \draw[avicrule, line width=0.4pt]
-    ([yshift=-\avic@bandht]current page.north west) --
-    ([yshift=-\avic@bandht]current page.north east);%
-}
-
-\newcommand{\avic@bandback}{%
-  \ifavic@gradientband\avic@band@gradient\else\avic@band@plain\fi
-}
-
-%% 封面
-\setbeamertemplate{title page}{%
-  \begin{tikzpicture}[aviccanvas]
-    \avic@coverscene
-    \avic@securitymark
-    \avic@coverline{1.05cm}{\fontsize{30}{38}\bfseries\selectfont}{\inserttitle}
-    \avic@coverline{-1.15cm}{\normalsize}{\insertauthor}
-    \avic@coverline{-1.85cm}{\normalsize}{\insertinstitute}
-    \avic@coverline{-2.55cm}{\normalsize}{\insertdate}
-  \end{tikzpicture}%
-}
-
-%% 章节页
-\providecommand*{\beamer@sectionmax}{1}
-\newcounter{avictoc}
-
-\newcommand{\avic@tocitem}[3]{%
-  \stepcounter{avictoc}%
-  \pgfmathsetmacro{\avic@toctotal}{max(\beamer@sectionmax, 1)}%
-  %% 章节少时收紧纵向跨度
-  \pgfmathsetmacro{\avic@tocspan}{%
-    ifthenelse(\avic@toctotal<=3, 0.44, ifthenelse(\avic@toctotal==4, 0.50, 0.60))}%
-  \pgfmathsetmacro{\avic@tocstep}{\avic@tocspan / max(\avic@toctotal - 1, 1)}%
-  \pgfmathsetmacro{\avic@tocy}{%
-    0.5 + (\value{avictoc} - (\avic@toctotal + 1) / 2) * \avic@tocstep}%
-  \pgfmathsetmacro{\avic@tocx}{\avic@sidebarfrac
-    + (\avic@arrowtipfrac - \avic@sidebarfrac) * (1 - abs(2 * \avic@tocy - 1))}%
-  \begin{tikzpicture}[aviccanvas]
-    \node[avicbadge, fill=#1, anchor=center] (avictocnum)
-      at ([xshift=\avic@tocx\paperwidth,
-           yshift=-\avic@tocy\paperheight]current page.north west)
-      {\inserttocsectionnumber};
-    \node[#2] (avictocname) at ([xshift=0.28cm]avictocnum.east) {\inserttocsection};
-    \coordinate (avictocls) at ([yshift=-0.42cm]avictocname.west);
-    \coordinate (avictocle) at ([xshift=\avic@tocrulefrac\paperwidth]current page.north west);
-    \draw[#3, line width=0.3pt] (avictocls) -- (avictocls -| avictocle);
-  \end{tikzpicture}%
-}
-\setbeamertemplate{section in toc}{%
-  \avic@tocitem{avicbadgeon}{anchor=west, font=\large\bfseries, text=themecolor}{avictocline}}
-\setbeamertemplate{section in toc shaded}{%
-  \avic@tocitem{avicbadgeoff}{anchor=west, font=\large, text=black}{avictocline!70}}
-
-\newcommand{\avicagendadecor}[1]{%
-  \begin{tikzpicture}[aviccanvas]
-    \coordinate (avicagendatop) at
-      ([xshift=\avic@sidebarfrac\paperwidth]current page.north west);
-    \coordinate (avicagendatip) at
-      ([xshift=\avic@arrowtipfrac\paperwidth,
-        yshift=-0.50\paperheight]current page.north west);
-    \coordinate (avicagendabot) at
-      ([xshift=\avic@sidebarfrac\paperwidth, yshift=-\paperheight]current page.north west);
-    \fill[white] (current page.north west) rectangle (current page.south east);
-    \fill[avicsidebarbg] (current page.north west) rectangle (avicagendabot);
-    \fill[avicsidebarbg]
-      (avicagendatop) -- (avicagendatip) -- (avicagendabot) -- cycle;
-    \draw[avicrule, line width=0.4pt]
-      (avicagendatop) -- (avicagendatip) -- (avicagendabot);
-    \node[avicfit, anchor=center, text=themecolor, align=center,
-      font=\fontsize{32}{40}\bfseries\selectfont]
-      at ([xshift=0.085\paperwidth, yshift=-0.50\paperheight]current page.north west) {#1};
-    \node[avicfit, anchor=north east]
-      at ([xshift=-0.50cm, yshift=-0.40cm]current page.north east) {\avic@brandlogo};
-  \end{tikzpicture}%
-}
-
-\setbeamertemplate{section page}{%
-  \avicagendadecor{\avic@agenda}%
-  \setcounter{avictoc}{0}%
-  \tableofcontents[currentsection, hideallsubsections]%
-}
-
-\ifavic@sectionpage
-  \AtBeginSection[]{\frame{\sectionpage}}
-\fi
-
-%% 内页标题带
-\setbeamertemplate{frametitle}{%
-  \begin{tikzpicture}[aviccanvas]
-    \avic@bandback
-    \node[avicfit, anchor=west, text=avicbandtext, font=\Large\bfseries]
-      at ([xshift=0.70cm, yshift=-0.57cm]current page.north west) {\insertframetitle};
-    \node[avicfit, anchor=east]
-      at ([xshift=-0.60cm, yshift=-0.57cm]current page.north east) {\avic@bandlogo};
-  \end{tikzpicture}%
-  \rule{0pt}{\avic@bandht}%
-}
-
-%% 页码：自动结束页不计入 \inserttotalframenumber，closingpage=true 时补 1
-\newcommand{\avic@displaytotal}{%
-  \ifavic@closingpage
-    \the\numexpr\inserttotalframenumber+1\relax
-  \else
-    \inserttotalframenumber
-  \fi}
-\setbeamertemplate{footline}{%
-  \ifnum\insertframenumber=1\relax\else
-    \begin{tikzpicture}[aviccanvas]
-      \node[avicfit, anchor=south east, text=avicfootgray, font=\scriptsize]
-        at ([xshift=-0.45cm, yshift=0.3cm]current page.south east)
-        {\insertframenumber\,/\,\avic@displaytotal};
-    \end{tikzpicture}%
-  \fi
-}
-
-%% 结束页
-\newcommand{\avicclosing}[1][\avic@closingtext]{%
-  \begin{tikzpicture}[aviccanvas]
-    \avic@coverscene
-    \node[aviccover, font=\fontsize{40}{48}\bfseries\selectfont]
-      at (current page.center) {#1};
-  \end{tikzpicture}%
-}
-
-\ifavic@closingpage
-  %% ignorenonframetext 会丢掉 \AtEndDocument 里的 frame 外材料，强制保留
-  \beamer@ignorenonframefalse
-  \AtEndDocument{%
-    \appendix
-    \setbeamertemplate{footline}{}%
-    \frame{\avicclosing}%
-  }
-\fi
+%% 子模块
+\RequirePackage{avic-colors}
+\RequirePackage{avic-layout}
+\RequirePackage{avic-templates}
 
 \mode<all>
